@@ -1,0 +1,23 @@
+db=hillinsight,user=writer, pw=hh$writer,host=localhost,port=3311,master=1,online=0
+db=hillinsight,user=reader, pw=hh$reader,host=localhost,port=3312,master=0,online=0
+db=hillinsight,user=work, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=hillinsight,user=rd, pw=rd,host=localhost,port=3310,master=0,online=1
+db=god_metric_meta,user=writer, pw=hh$writer,host=localhost,port=3311,master=1,online=0
+db=god_metric_meta,user=reader, pw=hh$reader,host=localhost,port=3312,master=0,online=0
+db=god_metric_meta,user=work, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=god_metric_meta,user=rd, pw=rd,host=localhost,port=3310,master=0,online=1
+db=works,user=works, pw=works.hillinsight.com,host=localhost,port=3309,master=1,online=1
+db=works,user=works, pw=works.hillinsight.com,host=localhost,port=3310,master=0,online=1
+db=staffing,user=work, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=staffing,user=work, pw=phkAmwrF,host=localhost,port=3310,master=0,online=1
+db=o2o,user=writer, pw=hh$writer,host=localhost,port=3311,master=1,online=0
+db=o2o,user=reader, pw=hh$reader,host=localhost,port=3312,master=0,online=0
+db=fund,user=work, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=fund,user=rd, pw=rd,host=localhost,port=3310,master=0,online=1
+db=pet_cloud,user=work, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=pet_cloud,user=rd, pw=rd,host=localhost,port=3309,master=0,online=1
+db=sso,user=sso, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=im,user=work, pw=phkAmwrF,host=localhost,port=3309,master=1,online=1
+db=im,user=rd, pw=rd,host=localhost,port=3310,master=0,online=1
+db=contact,user=hcmlreader, pw=HcmL.1234!,host=192.168.100.66,port=42066,master=0,online=1
+db=pet_cloud,user=work,pw=phkAmwrF,host=localhost,port=3311,master=1,online=0

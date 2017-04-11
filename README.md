@@ -57,4 +57,4 @@ The following browsers have passed all of the automated Charts tests:
 - for delete the nouse notebook
     0 4 * * * (ps ux|grep -v grep|grep jupyter-notebook|awk '{print $2}'|xargs kill -9)&&(cd somewhere/notebook/ && rm *.ipynb)
 - for check task and add the task to crontab
-    * * * * * source ~/.bash_profile && cd somewhere/charts/ && python task_to_auto.py >>auto.log 2>&1
+    \* * * * * source ~/.bash_profile && cd somewhere/charts/ && python task_to_auto.py >>auto.log 2>&1

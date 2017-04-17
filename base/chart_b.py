@@ -55,13 +55,31 @@ def get_chart(chart,data):
             data = get_column_combine(data)
             lens = len(data)
             series = chart['series']
-            for key,item in enumerate(series):
-                item['name'] = item['name'].encode('utf-8')
-                if key<lens:
-                    item['data'] = data[key]
-                else:
-                    item['data'] = []
-            chart['series'] = series
+            tmp_series = []
+            if series:
+                now_key = -1
+                for key,item in enumerate(series):
+                    if key<lens:
+                        now_key = key
+                        item['name'] = heads[key+1]
+                        item['data'] = data[key]
+                        tmp_series.append(item)
+                    else:
+                        break
+                template_series = series[-1]
+                for key,item in enumerate(heads):
+                    if key == 0:
+                        continue
+                    elif now_key<key-1:
+                        tmp = dict(template_series)
+                        tmp['name'] = item
+                        tmp['data'] = data[key-1]
+                        tmp['_colorIndex'] = key-1
+                        tmp['_symbolIndex'] = key-1
+                        tmp_series.append(tmp)
+            else:
+                tmp_series = series
+            chart['series'] = tmp_series
             result = chart
     return result
 

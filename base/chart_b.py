@@ -61,13 +61,13 @@ def get_chart(chart,data):
                 for key,item in enumerate(series):
                     if key<lens:
                         now_key = key
-                        item['name'] = heads[key+1]
+                        item['name'] = first[key+1]
                         item['data'] = data[key]
                         tmp_series.append(item)
                     else:
                         break
                 template_series = series[-1]
-                for key,item in enumerate(heads):
+                for key,item in enumerate(first):
                     if key == 0:
                         continue
                     elif now_key<key-1:

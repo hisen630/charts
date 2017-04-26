@@ -4,8 +4,6 @@ import sys
 import time
 from crontab import CronTab
 
-_cron  = CronTab(user=True)
-
 #add task
 def _add_task(data):
     result = _add_task_db(data)
@@ -26,6 +24,7 @@ def _del_task():
 #add new job to crontab
 def _add_new_job(comment,cmd,cycle):
     comment = str(comment)
+    _cron = CronTab(user=True)
     jobs = _cron.find_comment(comment)
     c = 0
     for job in jobs:
@@ -39,6 +38,7 @@ def _add_new_job(comment,cmd,cycle):
 
 #delete job from crontab
 def _del_job(comment):
+    _cron = CronTab(user=True)
     jobs = _cron.remove_all(comment=str(comment))
     _cron.write()
 
@@ -49,6 +49,7 @@ def _modify_job(comment,cmd,cycle):
 
 #view crontab job
 def _view_job(comment):
+    _cron = CronTab(user=True)
     jobs = _cron.find_comment(str(comment))
     for job in jobs:
         print "find job:",job

@@ -173,8 +173,8 @@ def get_time_by_tag(fromt,tot):
     result = ['','']
     if fromt and tot:
         # try:
-            stime = str(round(float(parse_time(fromt))))
-            etime = str(round(float(parse_time(tot))))
+            stime = float(parse_time(fromt))
+            etime = float(parse_time(tot))
             result = [stime,etime]
         # except Exception, e:
         #     pass

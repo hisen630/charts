@@ -33,13 +33,6 @@ class Manager(DataSource):
                     conf['tid'] = form['tid']
                 else:
                     return return_result
-            if 'tid_table' in form:
-                if form['tid_table']:
-                    conf['tid_table'] = form['tid_table']
-                else:
-                    return return_result
-            else:
-                return return_result
             if 'name' in form:
                 if form['name'].strip():
                     result['name'] = form['name'].strip()

@@ -189,10 +189,8 @@ class AutoOper():
                 if "task_table" in sqls:
                     fininal_sql = []
                     for item in tables:
-                        tmp_sql = sqls
-                        tmp_sql = tmp_sql.replace("task_table",item['tables'])
-                        fininal_sql.append("({})".format(tmp_sql))
-                    fininal_sql = " union ".join(fininal_sql)
+                        fininal_sql.append("(select * from {})".format(item['tables']))
+                    fininal_sql = sqls.replace("task_table","({}) a".format(" union ".join(fininal_sql)))
                     try:
                         data = self._get_data_by_sql(fininal_sql)
                         columns = self._get_columns_by_sql(fininal_sql)

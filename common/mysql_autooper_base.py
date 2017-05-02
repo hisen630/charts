@@ -190,7 +190,7 @@ class AutoOper():
                     fininal_sql = []
                     for item in tables:
                         fininal_sql.append("(select * from {})".format(item['tables']))
-                    fininal_sql = sqls.replace("task_table","({}) a".format(" union ".join(fininal_sql)))
+                    fininal_sql = sqls.replace("task_table","({}) _task_table".format(" union ".join(fininal_sql)))
                     try:
                         data = self._get_data_by_sql(fininal_sql)
                         columns = self._get_columns_by_sql(fininal_sql)

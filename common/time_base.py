@@ -23,6 +23,8 @@ _format = {
     "S":"%S",
     "s":""
 }
+
+_format_time = r'%Y-%m-%d %H:%M:%S'
 _parse_num = re.compile(r"(\d+)(\w)")
 _now = time.time()
 class TimeCac():
@@ -271,8 +273,8 @@ def get_time(params,timestramp=0):
         stime_sec = stime
         stime = time.localtime(stime_sec)
         if end in _format:
-            if end == 's':
-                return int(stime_sec)
+            if end == 'S':
+                return round(stime_sec)
             else:
                 pos = _format_time.find(end,0)
                 stime = time.strftime(_format_time[0:pos+1],stime)

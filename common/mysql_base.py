@@ -4,17 +4,6 @@ from dj_database_url import parse as parse_db_url
 from time_base import get_time
 import time
 from utils import _req_url_body
-_format = {
-    'Y':"%Y",
-    "m":"%m",
-    "d":"%d",
-    "H":"%H",
-    "M":"%M",
-    "S":"%S",
-    "s":""
-}
-
-_format_time = r'%Y-%m-%d %H:%M:%S'
 
 def check_conf(mysql_connect='',sqls='',code='',custom=''):
     result = {}

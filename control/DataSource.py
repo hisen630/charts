@@ -26,6 +26,7 @@ class DataSource():
                 data = datasource_m.get_datasource(int(cid),True)
                 if data:
                     types = data['types']
+        data = datasource_m.get_datasource_other(data,types)
         modules = base_b.get_modules("datasource",types)
         for item in modules:
             return render_custom(item['template'],data=data,types=types)

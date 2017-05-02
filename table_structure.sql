@@ -7,13 +7,13 @@
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
 
 -- 导出 god_metric_meta 的数据库结构
-CREATE DATABASE IF NOT EXISTS `god_metric_meta` /*!40100 DEFAULT CHARACTER SET utf8mb4 */;
+CREATE DATABASE IF NOT EXISTS `god_metric_meta` /*!40100 DEFAULT CHARACTER SET utf8 */;
 USE `god_metric_meta`;
 
 -- 导出  表 god_metric_meta.t_chart_datasource 结构
@@ -41,7 +41,7 @@ CREATE TABLE IF NOT EXISTS `t_chart_menu` (
   `sort` int(11) NOT NULL DEFAULT '100' COMMENT '顺序',
   `status` tinyint(4) NOT NULL DEFAULT '1' COMMENT '状态：0无效1显式菜单2隐式菜单',
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8mb4 COMMENT='菜单表';
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COMMENT='菜单表';
 
 -- 数据导出被取消选择。
 -- 导出  表 god_metric_meta.t_chart_modules 结构
@@ -168,7 +168,7 @@ INSERT INTO `t_chart_modules` (`id`, `name`, `module_types`, `types`, `template`
 
 /*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
 /*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8mb4 */;
+/*!50503 SET NAMES utf8 */;
 /*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
 /*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
 
@@ -181,6 +181,10 @@ CREATE TABLE IF NOT EXISTS `t_chart_test_data` (
   `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
   PRIMARY KEY (`uid`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+INSERT INTO `god_metric_meta`.`t_chart_datasource` (`id`, `name`, `types`, `conf`, `user`, `uptime`, `status`) VALUES ('1', 'pandas转换mysql', '0', '{\"mysql_connect\": \"mysql://root:123456@localhost/god_metric_meta\", \"code\": \"def trans(frame):\\r\\n    result=frame.groupby([\'dt\',\'ranges\'])\\r\\n    return result.c.sum().unstack()\", \"sqls\": \"select dt,ranges,count(*) as c from (select substr(created_at,1,4) as dt,case  when friends_count<=100 then \\\"0~100\\\" when 100<friends_count and friends_count<=1000\\r\\nthen \\\"100~1000\\\"  else \\\"1000\\u4ee5\\u4e0a\\\" end as ranges from t_chart_test_data) a group by dt,ranges;\"}', '0', '2017-04-26 19:22:08', '1');
+INSERT INTO `god_metric_meta`.`t_chart_datasource` (`id`, `name`, `types`, `conf`, `user`, `uptime`, `status`) VALUES ('2', '普通两列的引用', '0', '{\"mysql_connect\": \"mysql://root:123456@localhost/god_metric_meta\", \"code\": \"\", \"sqls\": \"select name,friends_count from t_chart_test_data where friends_count>#friends_count limit 30;\", \"customs\": \"#friends_count:100\"}', '0', '2017-04-26 19:10:22', '1');
+INSERT INTO `god_metric_meta`.`t_chart_reports` (`id`, `name`, `conf`, `code`, `customs`, `user`, `uptime`, `status`) VALUES ('1', '普通两列的引用', '{\"chart\":{\"type\":\"column\",\"polar\":false},\"title\":{\"text\":\"微博关注数\"},\"subtitle\":{\"text\":\"\"},\"exporting\":{},\"yAxis\":[{\"title\":{\"text\":\"人数\"}}],\"xAxis\":[{\"type\":\"category\"}],\"series\":[{\"data\":[[\"退役军人\",205]],\"name\":\"friends_count\",\"turboThreshold\":0,\"_colorIndex\":0,\"_symbolIndex\":0}],\"plotOptions\":{\"series\":{\"animation\":true}},\"credits\":{\"enabled\":false},\"tooltip\":{\"shared\":true}}', '', '[{\"2\": \"\"}]', '0', '2017-04-26 19:23:56', '1');
+INSERT INTO `god_metric_meta`.`t_chart_reports` (`id`, `name`, `conf`, `code`, `customs`, `user`, `uptime`, `status`) VALUES ('2', 'pandas转换mysql', '{\"chart\":{\"type\":\"column\"},\"plotOptions\":{\"series\":{\"stacking\":\"percent\",\"animation\":true}},\"title\":{\"text\":\"每年微博关注数占比\"},\"subtitle\":{\"text\":\"\"},\"exporting\":{},\"yAxis\":[{\"title\":{\"text\":\"占比\"}}],\"xAxis\":[{\"type\":\"category\"}],\"series\":[{\"data\":[[2009,10]],\"name\":\"0~100\",\"_colorIndex\":0,\"_symbolIndex\":0},{\"data\":[[2009,144]],\"name\":\"1000以上\",\"_colorIndex\":1,\"_symbolIndex\":1},{\"data\":[[2009,218]],\"name\":\"100~1000\",\"_colorIndex\":2,\"_symbolIndex\":2}],\"credits\":{\"enabled\":false}}', '', '[{\"1\": \"\"}]', '0', '2017-04-26 19:26:21', '1');
 
 -- 正在导出表  god_metric_meta.t_chart_test_data 的数据：~1,000 rows (大约)
 DELETE FROM `t_chart_test_data`;

@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from hillinsight.storage import dbs
 from dj_database_url import parse as parse_db_url
-from time_base import get_time_range
+from time_base import get_time
 import time
 from utils import _req_url_body
 _format = {
@@ -97,33 +97,6 @@ def parse_sql(sql,custom,timestramp=0):
                 tmp.append(u"{}:{}".format(item,customs_old[item]))
             custom = ";".join(tmp)
     return [sql,custom]
-
-def get_time(params,timestramp=0):
-    param = params.split("/",2)
-    param_len = len(param)
-    if param_len > 1:
-        end = ""
-        if param_len == 3:
-            [stime,etime] = get_time_range('quick',"/".join(param[0:2]),"now",timestramp=timestramp)
-            end = param[2]
-        elif param_len == 2:
-            [stime,etime] = get_time_range('quick',"/".join(param[0:1]),"now",timestramp=timestramp)
-            end = param[1]
-        stime_sec = int(stime)/1000
-        stime = time.localtime(stime_sec)
-        if end in _format:
-            if end == 's':
-                return int(stime_sec)
-            else:
-                pos = _format_time.find(end,0)
-                stime = time.strftime(_format_time[0:pos+1],stime)
-        else:
-            if r"%" in end:
-                stime = time.strftime(end,stime)
-        return stime
-    else:
-        return params
-
 
 def get_data_mysql(mysql_connect,sql,custom,timestramp=0):
     [sql,custom] = parse_sql(sql,custom,timestramp)

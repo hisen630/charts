@@ -201,7 +201,7 @@ def get_data(data,source_data,istestcode=False):
     return result
 
 #获取json的配置数据
-def get_chart(sid,old_data=[]):
+def get_chart(sid,old_data=[],istable=False):
     if sid or old_data:
         data = chart_b.get_data_by_id(sid)
         tmp_data = {}
@@ -221,7 +221,10 @@ def get_chart(sid,old_data=[]):
                 source_data = datasource_b.get_data_by_ids(keys)
                 table_data = get_data(data,source_data)
                 if table_data['status'] == 1:
-                    chart_conf = chart_b.get_chart(json.loads(data['conf']),table_data['data'])
+                    if istable:
+                        chart_conf = table_data['data']
+                    else:
+                        chart_conf = chart_b.get_chart(json.loads(data['conf']),table_data['data'])
                     result = {'status':1,'msg':u'','data':json.dumps(chart_conf,default=defaultencode)} 
                 else:
                     result = table_data

@@ -35,19 +35,25 @@ class Chart():
         if request.method == 'GET':
             cid = request.args.get('id', '')
             ajax = request.args.get('ajax', False)
+            istable = request.args.get('istable', False)
             customs = request.args.get('customs', '')
             if ajax:
                 if ajax == 'true':
                     ajax = True
                 else:
                     ajax = False
+            if istable:
+                if istable.lower() == 'true':
+                    istable = True
+                else:
+                    istable = False
             if cid:
                 if customs:
                     try:
                         customs = json.loads(customs)
                     except Exception, e:
                         return {'status':0,'msg':u'自定义参数格式错误，请输入类似[{"3": ""}]'}
-                result = chart_m.get_chart(int(cid),customs)
+                result = chart_m.get_chart(int(cid),customs,istable=istable)
                 if result['status'] == 0:
                     return json.dumps(result,default=defaultencode)
             if ajax:

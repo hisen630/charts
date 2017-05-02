@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from hillinsight.storage import dbs
 from dj_database_url import parse as parse_db_url
-from time_base import get_time_range
 from conf import hive as _hive
 from conf.default import __hive_is_have_dbs
 import hql_profile_base

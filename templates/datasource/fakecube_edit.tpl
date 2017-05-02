@@ -36,7 +36,7 @@
         <textarea name="sqls" id="sql_editor" class="highed-box-size" placeholder='自定义sql:select * from task_table limit 10;' >{% if data.sqls %}{{data.sqls}}{%else%}select * from task_table limit 10;{%endif%}</textarea>
     </div>
     <div class="col-md-11 form-group" >
-        <span style="color:red;font-size:0.2em">注意：表名统一写成<strong>task_table</strong>;当需要指定task_table d的alias时不用使用as，系统会直接指定为<strong>_alias</strong>(example:select * from task_table left join some b on _alias.id=b.id);查看字段请点击<strong>view result</strong></span>
+        <span style="color:red;font-size:0.2em">注意：表名统一写成<strong>task_table</strong>，它会自动替代任务的结果表;当需要指定task_table的alias时不用使用as,系统默认指定为<strong>_alias</strong>(example:select * from task_table left join some b on _alias.id=b.id);查看字段请点击<strong>view result</strong></span>
     </div>
     <div class="col-md-11 form-group" >
         <input type="text" class="form-control" name="customs" value="{{data.customs}}" placeholder='请输入自定义变量的值'>

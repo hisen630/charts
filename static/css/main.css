@@ -19,6 +19,10 @@ body {
     border-left-color: rgb(86, 61, 124);
     background-color:none;
 }
+.select_nopad {
+    padding-right: 0px;
+    padding-left: 0px;
+}
 a {
     font-weight: 500;
 }

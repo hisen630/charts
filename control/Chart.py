@@ -36,6 +36,8 @@ class Chart():
             cid = request.args.get('id', '')
             ajax = request.args.get('ajax', False)
             istable = request.args.get('istable', False)
+            offset = request.args.get('offset', 0)
+            length = request.args.get('length', 0)
             customs = request.args.get('customs', '')
             if ajax:
                 if ajax == 'true':
@@ -53,7 +55,7 @@ class Chart():
                         customs = json.loads(customs)
                     except Exception, e:
                         return {'status':0,'msg':u'自定义参数格式错误，请输入类似[{"3": ""}]'}
-                result = chart_m.get_chart(int(cid),customs,istable=istable)
+                result = chart_m.get_chart(int(cid),customs,istable=istable,offset=offset,length=length)
                 if result['status'] == 0:
                     return json.dumps(result,default=defaultencode)
             if ajax:

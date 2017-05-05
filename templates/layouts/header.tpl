@@ -11,9 +11,9 @@
     <link rel="stylesheet" href="/static/plugin/bootstrap/css/bootstrap.min.css">
     <link rel="stylesheet" href="/static/plugin/select2/select2.css" />
     <link rel="stylesheet" href="/static/plugin/select2/select2-bootstrap.css" />
-    <link rel="stylesheet" href="/static/css/main.css">
     <link href="/static/plugin/metisMenu/metisMenu.min.css" rel="stylesheet">
     <link rel="stylesheet" href="/static/plugin/datetimepicker/bootstrap-datetimepicker.min.css" />
+    <link rel="stylesheet" href="/static/css/main.css">
     <link href="/static/css/sb-admin-2.css" rel="stylesheet">
     <link href="/static/plugin/metisMenu/demo.css" rel="stylesheet">
     {% block header %}

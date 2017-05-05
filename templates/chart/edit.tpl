@@ -77,13 +77,20 @@ ul {
             </table>
         </fieldset>
     </div>
-    <div class="form-group" >
-        <select name="nouse_datasource" class="col-md-10 multiple" >
+    <div class="col-md-12 form-group" >
+        <label class="col-md-1 control-label">类型</label>
+        <select name="chart_type" class="col-md-11 multiple select_nopad">
+            <option value='0' {% if data.chart_type==0 %}selected{%endif%}>图表</option>
+            <option value='1' {% if data.chart_type==1 %}selected{%endif%}>table</option>
+        </select>
+    </div>
+    <div class="col-md-12 form-group" >
+        <select name="nouse_datasource" class="col-md-10 multiple select_nopad">
             {% for item in datasources %}
                 <option value='{{item.id}}' data-types='{{item.types}}' data-conf="{{item.jsons}}">{{item.name}}</option>
             {% endfor %}
         </select>
-        <button type="button" id="add_datasource" class="col-md-1 btn btn-primary">添加数据源</button>
+        <button type="button" id="add_datasource" class="col-md-2 btn btn-primary">添加数据源</button>
     </div>
     <div class="col-md-12 form-group" >
         <input type="text" class="form-control" name="name" value="{{data.name}}" placeholder='报表名称'>
@@ -100,12 +107,14 @@ ul {
     </div>
     <div class="col-md-7 form-group"></div>
     <div class="col-md-2 form-group">
-        <button type="button" id="transfer_highchart" class="btn btn-info">Create a chart</button>
+        <button type="button" id="transfer_highchart" class="btn btn-info" {% if data.chart_type==1 %}style="display:none"{%endif%}>Create a chart</button>
+        <button type="button" id="view_result" class="btn btn-info" {% if data.chart_type==0 %}style="display:none"{%endif%}>view_result</button>
     </div>
     <div class="col-md-1 form-group">
         <button type="button" id="submit" class="btn btn-success">保存</button>
     </div>
-    <div class="col-md-12" id="chart_show" style="height:400px"></div>
+    <div class="col-md-12" id="chart_show" {% if data.chart_type==0 %}style="height:400px"{%endif%}></div>
+    <div class="col-md-12" id="data_show"></div>
 </form>
 
 

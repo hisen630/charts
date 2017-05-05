@@ -42,10 +42,6 @@ def save(form):
         else:
             result = chart_b.save(data)
         return {'status':1,'msg':u'保存成功','data':result}
-        try:
-            pass
-        except Exception, e:
-            return {'status':0,'msg':u'保存失败，请先检查是否名称重复，如不重复联系管理员'}
 #获取编辑页内容
 def get_edit(sid):
     result = []
@@ -93,16 +89,20 @@ def parse_params(form,check_conf=True):
     name = form.get('name', '')
     code = form.get('code','')
     customs = form.getlist("customs")
+    chart_type = int(form.get('chart_type',0))
     ids = form.getlist("ids")
     data = {}
     msg = []
     if cid:
         data['id'] = cid
-    if check_conf:
+    data['chart_type'] = chart_type
+    if check_conf and chart_type == 0:
         if conf.strip():
             data['conf'] = conf
         else:
             msg.append(u"未配置报表图")
+    if chart_type == 1:
+        data['conf'] = ""
     if name.strip():
         data['name'] = name.strip()
     else:
@@ -201,7 +201,7 @@ def get_data(data,source_data,istestcode=False):
     return result
 
 #获取json的配置数据
-def get_chart(sid,old_data=[],istable=False):
+def get_chart(sid,old_data=[],istable=False,offset=0,length=0):
     if sid or old_data:
         data = chart_b.get_data_by_id(sid)
         tmp_data = {}
@@ -221,11 +221,26 @@ def get_chart(sid,old_data=[],istable=False):
                 source_data = datasource_b.get_data_by_ids(keys)
                 table_data = get_data(data,source_data)
                 if table_data['status'] == 1:
-                    if istable:
+                    chart_type = istable|data['chart_type']
+                    result = {'status':1,"chart_type":chart_type,'msg':u''}
+                    if istable or data['chart_type']:
                         chart_conf = table_data['data']
+                        result['total'] = len(chart_conf) - 1
+                        try:
+                            offset = int(offset)
+                            length = int(length)
+                            tmp = []
+                            tmp.append(chart_conf[0])
+                            if length:
+                                tmp.extend(chart_conf[offset+1:offset+1+length])
+                            else:
+                                tmp = chart_conf
+                            result['data'] = json.dumps(tmp,default=defaultencode)
+                        except Exception, e:
+                            result = {'status':0,'msg':u'table 偏移量和长度请给整数值'}
                     else:
                         chart_conf = chart_b.get_chart(json.loads(data['conf']),table_data['data'])
-                    result = {'status':1,'msg':u'','data':json.dumps(chart_conf,default=defaultencode)} 
+                        result['data'] = json.dumps(chart_conf,default=defaultencode)
                 else:
                     result = table_data
             else:

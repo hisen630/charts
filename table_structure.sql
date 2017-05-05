@@ -61,9 +61,10 @@ CREATE TABLE IF NOT EXISTS `t_chart_modules` (
 CREATE TABLE IF NOT EXISTS `t_chart_reports` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(100) NOT NULL COMMENT '报表名称',
-  `conf` blob NOT NULL COMMENT '图表配置信息',
-  `code` text COMMENT '自定义代码',
-  `customs` blob COMMENT '自定义信息',
+  `conf` blob NULL COMMENT '图表配置信息',
+  `code` text NULL COMMENT '自定义代码',
+  `customs` blob NULL COMMENT '自定义信息',
+  `chart_type` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '0代表图表1代表table',
   `user` varchar(100) NOT NULL DEFAULT '' COMMENT '最后管理者',
   `uptime` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
   `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '状态：0为删除，1为有效',

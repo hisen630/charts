@@ -234,7 +234,7 @@ def get_chart(sid,old_data=[],istable=False,offset=0,length=0):
                             if length:
                                 tmp.extend(chart_conf[offset+1:offset+1+length])
                             else:
-                                tmp = chart_conf
+                                tmp.extend(chart_conf[offset+1:])
                             result['data'] = json.dumps(tmp,default=defaultencode)
                         except Exception, e:
                             result = {'status':0,'msg':u'table 偏移量和长度请给整数值'}

@@ -108,7 +108,7 @@ ul {
     <div class="col-md-7 form-group"></div>
     <div class="col-md-2 form-group">
         <button type="button" id="transfer_highchart" class="btn btn-info" {% if data.chart_type==1 %}style="display:none"{%endif%}>Create a chart</button>
-        <button type="button" id="view_result" class="btn btn-info" {% if data.chart_type==0 %}style="display:none"{%endif%}>view_result</button>
+        <button type="button" id="view_result" class="btn btn-info" {% if data.chart_type==0 %}style="display:none"{%endif%}{% if not data %}style="display:none"{%endif%}>view_result</button>
     </div>
     <div class="col-md-1 form-group">
         <button type="button" id="submit" class="btn btn-success">保存</button>

@@ -44,13 +44,11 @@ def handle(ids,timestramp,types,clear):
             ishandle = False
             for item in objects:
                 if objects[item].types == task['types']:
-                    run_result = objects[item].run_task(task,timestramp)
                     try:
-                        #run_result = objects[item].run_task(task,timestramp)
+                        run_result = objects[item].run_task(task,timestramp)
                         if type(run_result['status']) != int:
                             raise Warning
                     except Exception, e:
-                        raise e
                         warning(ids,timestramp,types,u"此id对应的任务对应的处理代码错误，未正确返回结果")
                         return
                     form = {}

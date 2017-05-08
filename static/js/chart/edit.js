@@ -201,6 +201,8 @@ $(function(){
             mysql_caculate_modal(types,conf)
         }else if(types=='2'){
             mysql_caculate_modal(types,conf)
+        }else if(types=='3'){
+            mysql_caculate_modal(types,conf)
         }
     })
     $("select[name=chart_type]").on("change",function(){
@@ -223,6 +225,8 @@ $(function(){
         }else if(types=='1'){
             mysql_caculate_modal_save(obj)
         }else if(types=='2'){
+            mysql_caculate_modal_save(obj)
+        }else if(types=='3'){
             mysql_caculate_modal_save(obj)
         }
         

@@ -9,4 +9,4 @@ _notebook_path = "/home/jianczhang/notebook"
 _notebook_url = "http://notebook.in.hillinsight.com"
 #hive查询表时是否包含表名
 __hive_is_have_dbs = False
-__hive_is_have_dbs = True
+# __hive_is_have_dbs = True

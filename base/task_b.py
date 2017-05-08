@@ -62,7 +62,7 @@ def get_task_list(sid="",name="",iscount=False,current=1,rowCount=20,types=0):
     where = []
     limit = ''
     if sid:
-        if type(sid) == int:
+        if type(sid) != list:
             sid = [sid]
         where.append("""and id in ({})""".format(",".join(map(str,sid))))
     if name:
@@ -114,7 +114,7 @@ def get_runlog_list(sid="",name="",iscount=False,current=1,rowCount=20,types=0):
     where = []
     limit = ''
     if sid:
-        if type(sid) == int:
+        if type(sid) != list:
             sid = [sid]
         where.append("""and b.id in ({})""".format(",".join(map(str,sid))))
     if name:

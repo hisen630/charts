@@ -53,13 +53,13 @@ def get_chart(chart,data):
         if chart.get('series',False):
             first = data[0]
             data = get_column_combine(data)
-            lens = len(data)
+            lens = len(first)
             series = chart['series']
             tmp_series = []
             if series:
                 now_key = -1
                 for key,item in enumerate(series):
-                    if key<lens:
+                    if key<lens-1:
                         now_key = key
                         item['name'] = first[key+1]
                         item['data'] = data[key]
@@ -100,7 +100,14 @@ def get_column_combine(data):
                                 if type(it) == str or type(it) == unicode:
                                     try:
                                         if r"." in it:
-                                            it = float(it)
+                                            if r"," in it:
+                                                tmp = it.replace(",","")
+                                                it = float(tmp)
+                                            else:
+                                                it = float(it)
+                                        elif r"," in it:
+                                            tmp = it.replace(",","")
+                                            it = int(tmp)
                                         else:
                                             it = int(it)
                                     except Exception, e:

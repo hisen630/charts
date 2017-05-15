@@ -489,11 +489,37 @@ def get_py_file(dirs):
                 result.append(module_name)
     return result
 
+def format_number(data):
+    result = []
+    for item in data:
+        tmp = {}
+        for it in item:
+            tmp[it] = item[it]
+            if type(tmp[it]) == str or type(tmp[it]) == unicode:
+                try:
+                    if r"." in item[it]:
+                        if r',' in item[it]:
+                            t = item[it].replace(",","")
+                            tmp[it] = float(t)
+                        else:
+                            tmp[it] = float(item[it])
+                    elif r',' in item[it]:
+                        t = item[it].replace(",","")
+                        tmp[it] = int(t)
+                    else:
+                        tmp[it] = int(item[it])
+                except Exception, e:
+                    pass
+        if tmp:
+            result.append(tmp)
+    return result
+                
+
 def data_trans(data,columns_names,code,istable=True):
     if columns_names:
-        data = DataFrame([x for x in data],columns=columns_names)
+        data = DataFrame([x for x in format_number(data)],columns=columns_names)
     else:
-        data = DataFrame([x for x in data])
+        data = DataFrame([x for x in format_number(data)])
     try:
         if code:
             exec code

@@ -53,4 +53,18 @@ $(function(){
     $("button[class*=chart_del]").on("click",function(){
         $(this).parents("tr").remove()
     })
+    $("button[class*=chart_up]").on("click",function(){
+        old=$(this).parents("tr")
+        news = old.prev()
+        if(news.length>0){
+            news.before(old)
+        }
+    })
+    $("button[class*=chart_down]").on("click",function(){
+        old=$(this).parents("tr")
+        news = old.next()
+        if(news.length>0){
+            news.after(old)
+        }
+    })
 })

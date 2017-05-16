@@ -53,7 +53,9 @@ ul {
                             <label>{{item.name}}</label><input type="text" class="form-control" style="display:none" value="{{item.id}}" name="ids">
                         </td>
                         <td>
-                            <button type="button" class="btn btn-danger chart_del">删除</button>
+                            <button type="button" class="btn btn-defalut chart_up" title="move up"><span class="glyphicon glyphicon-arrow-up"></span></button>
+                            <button type="button" class="btn btn-defalut chart_down" title="move down"><span class="glyphicon glyphicon-arrow-down"></span></button>
+                            <button type="button" class="btn btn-defalut chart_del" title="delete"><span class="glyphicon glyphicon-remove"></span></button>
                         </td>
                     </tr>
                     {%endfor%}
@@ -73,7 +75,6 @@ ul {
         <input type="text" class="form-control" name="name" value="{{data.name}}" placeholder='dashboard名称'>
     </div>
     <div class="col-md-2 form-group">
-        <button type="button" class="btn btn-info" id="create_notebook">Priview</button>
     </div>
     <div class="col-md-9"></div>
     <div class="col-md-1 form-group">

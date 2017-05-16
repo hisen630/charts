@@ -1,0 +1,56 @@
+$(function(){
+    $(".multiple").select2({
+        minimumResultsForSearch:1
+    })
+    //保存内容
+    $("#submit").on("click",function(){
+        params = $(".form-horizontal").serialize();
+        // 异步加载数据
+        $.ajax({
+            type: "POST",
+            url:'/dashboard/save',
+            timeout:20000,
+            dataType:"json",
+            data:params,// 你的formid
+            error: function(request) {
+                alert("网络请求失败，请检查网络")
+            },
+            success: function(data) {
+                if(data.status){
+                    alert(data.msg)
+                    window.location.href = "/dashboard/edit?id="+data.data
+                }else{
+                    alert(data.msg)
+                }
+            }
+        });
+    });
+    $("#add_chart").on("click",function(){
+        cid = $("select[name=select_charts]").val()
+        options = $("select[name=select_charts]").find("option[value='"+cid+"']")
+        conf_obj = options.data('conf')
+        isappend = false
+        if($("#datasource_"+cid).length==0){
+            isappend = true
+        }else{
+            if(confirm("已经存在此id，请确认是否继续添加？")){
+                isappend = true
+            }
+        }
+        if(isappend){
+            html = new Array()
+            html.push("<tr id='chart_"+conf_obj.id+"'>")
+            html.push("<td>"+conf_obj.id+"</td>")
+            html.push("<td><label>"+conf_obj.name+"</label><input type='text' class='form-control' style='display:none' value='"+conf_obj.id+"' name='ids'></td>")
+            html.push("<td><button type='button' class='btn btn-danger chart_del'>删除</button></td>")
+            html.push("</tr>")
+            $("#data_group").append(html.join(""))
+            $("button[class*=chart_del]").on("click",function(){
+                $(this).parents("tr").remove()
+            })
+        }
+    })
+    $("button[class*=chart_del]").on("click",function(){
+        $(this).parents("tr").remove()
+    })
+})

@@ -12,7 +12,7 @@ def get_data_by_name(name,status=[1],other=0):
     if other:
         where += ' and id not in ({}) '.format(other)
     sql = """
-        select * from t_chart_reports where name="{}" {};
+        select * from t_chart_dashboard where name="{}" {};
     """.format(name,where)
     try:
         result = _metric_meta_db.query(sql)
@@ -22,24 +22,11 @@ def get_data_by_name(name,status=[1],other=0):
         pass
     return result
     
-'''get chart from table by ids'''
-def get_data_by_ids(sids):
-    result = []
-    sids = [str(x) for x in sids]
-    sql = """
-        select * from t_chart_reports where id in ({});
-    """.format(",".join(sids))
-    try:
-        result = _metric_meta_db.query(sql)
-    except Exception, e:
-        pass
-    return result
-
 '''get the data from table by id'''
 def get_data_by_id(sid):
     result = []
     sql = """
-        select * from t_chart_reports where id={} and status=1;
+        select * from t_chart_dashboard where id={} and status=1;
     """.format(int(sid))
     try:
         result = _metric_meta_db.query(sql)
@@ -51,12 +38,12 @@ def get_data_by_id(sid):
 
 '''save data to chart table'''
 def save(form):
-    hid = _metric_meta_db.insert('t_chart_reports',**form)
+    hid = _metric_meta_db.insert('t_chart_dashboard',**form)
     return hid
 
 '''update chart table's data by id '''
 def update(form):
-    _metric_meta_db.update('t_chart_reports',where="id={}".format(form['id']),**form)
+    _metric_meta_db.update('t_chart_dashboard',where="id={}".format(form['id']),**form)
     return form['id']
 
 '''get highchart_edit json'''
@@ -129,7 +116,7 @@ def get_column_combine(data):
     return result
 
 '''get the chart list'''
-def get_chart_list(sid="",name="",fields=[],iscount=False,current=1,rowCount=20):
+def get_dashboard_list(sid="",name="",iscount=False,current=1,rowCount=20):
     where = []
     limit = ''
     if sid:
@@ -149,10 +136,8 @@ def get_chart_list(sid="",name="",fields=[],iscount=False,current=1,rowCount=20)
         limit = ""
         content = "count(*) as c"
         orders = ""
-    elif fields:
-        content = ",".join(fields)
     sql = """
-        select {} from t_chart_reports where status=1 {} {} {};
+        select {} from t_chart_dashboard where status=1 {} {} {};
     """.format(content," ".join(where),orders,limit)
     result = _metric_meta_db.query(sql)
     if iscount:

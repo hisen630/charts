@@ -138,8 +138,7 @@ def combineCustom(old,new):
             else:
                 continue
         for item in tmp_new:
-            if item in tmp_old:
-                tmp_old[item] = tmp_new[item]
+            tmp_old[item] = tmp_new[item]
         if tmp_old:
             old = []
             for item in tmp_old:

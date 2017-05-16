@@ -45,6 +45,6 @@
 {% endblock %}
 {% block content %}
 <div class='row'>
-    <div class="col-md-12" id="chart" data-conf='{{data.data}}' data-types='{{data.chart_type}}'></div>
+    <div class="col-md-12" id="chart" data-conf='{{data.data}}' data-types='{{data.chart_type}}' style="height:400px"></div>
 </div>
 {% endblock %}

@@ -3,33 +3,30 @@ from common.base import render_custom
 from flask import abort, redirect, url_for, jsonify
 from flask import request
 from common.utils import defaultencode
-from manager import chart_m
+from manager import dashboard_m
 import json
-import sys
-reload(sys)
-sys.setdefaultencoding('utf8')
 
-class Chart():
+class Dashboard():
 
     #列表页
     def index(self):
-        return render_custom('chart/index.tpl')
+        return render_custom('dashboard/index.tpl')
 
     #编辑
     def edit(self):
         data = {}
-        datasources = chart_m.get_datasource_list()
+        datasources = dashboard_m.get_chart_list()
         if request.method == 'GET':
             cid = request.args.get('id', '')
             if cid:
-                data = chart_m.get_edit(int(cid))
-        return render_custom('chart/edit.tpl',data=data,datasources=datasources)
+                data = dashboard_m.get_edit(int(cid))
+        return render_custom('dashboard/edit.tpl',data=data,datasources=datasources)
 
     #保存方法
     def save(self):
         result = {'status':0,'msg':u'请求方法错误'}
         if request.method == 'POST':
-            result = chart_m.save(request.form)
+            result = dashboard_m.save(request.form)
         return jsonify(result)
 
     #获取图表
@@ -39,8 +36,6 @@ class Chart():
             cid = request.args.get('id', '')
             ajax = request.args.get('ajax', False)
             istable = request.args.get('istable', False)
-            offset = request.args.get('offset', 0)
-            length = request.args.get('length', 0)
             customs = request.args.get('customs', '')
             if ajax:
                 if ajax == 'true':
@@ -57,29 +52,29 @@ class Chart():
                     try:
                         customs = json.loads(customs)
                     except Exception, e:
-                        return {'status':0,'msg':u'自定义参数格式错误，请输入类似[{"3": ""}]'}
-                result = chart_m.get_chart(int(cid),customs,istable=istable,offset=offset,length=length)
+                        return {'status':0,'msg':u'自定义参数格式错误，请输入类似[{"3": {"2":""}}],依次是报表id，数据源id ，数据源自定义参数'}
+                result = dashboard_m.get_chart(int(cid),customs,istable=istable)
                 if result['status'] == 0:
                     return json.dumps(result,default=defaultencode)
             if ajax:
                 return json.dumps(result,default=defaultencode)
             else:
-                return render_custom('chart/get_chart.tpl',data=result)
+                return render_custom('dashboard/get_chart.tpl',data=result)
         return jsonify(result)
 
     #获取数据
-    def get_data(self):
+    def priview(self):
         result = {'status':0,'msg':u'获取失败'}
-        if request.method == 'POST':
-            result = chart_m.get_data_by_form(request.form)
+        if request.method == 'GET':
+            result = dashboard_m.get_data_by_form(request.form)
         return json.dumps(result,default=defaultencode)
 
     def search(self):
         result = {'current':1,'total':0,'rows':[]}
         if request.method == 'POST':
-            cid = request.form.get('id', '')
+            did = request.form.get('id', '')
             name = request.form.get('name', '')
             current = request.form.get('current', 1)
             rowCount = request.form.get('rowCount', 20)
-            result = chart_m.get_list(cid,name,current,rowCount)
+            result = dashboard_m.get_list(did,name,current,rowCount)
         return json.dumps(result,default=defaultencode)

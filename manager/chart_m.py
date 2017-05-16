@@ -1,7 +1,8 @@
 # -*- coding: utf-8 -*-
 from base import chart_b,datasource_b
-from common import utils
+from common import utils,mysql_base
 import json
+from conf.default import _customs_name
 from common.utils import defaultencode,muti_data_trans
 from gevent import monkey; monkey.patch_all()
 import gevent
@@ -142,7 +143,7 @@ def get_data_by_form(form,istestcode=False):
     return result
 
 #获取数据
-def get_data(data,source_data,istestcode=False):
+def get_data(data,source_data,global_config,istestcode=False):
     source_data = utils.dbFormatToDict(source_data,"id")
     if source_data:
         tmp_source = 0
@@ -205,9 +206,13 @@ def get_chart(sid,old_data=[],istable=False,offset=0,length=0):
     if sid or old_data:
         data = chart_b.get_data_by_id(sid)
         tmp_data = {}
+        global_config=""
         for item in old_data:
             for it in item:
-                tmp_data[it] = item[it]
+                if it == _customs_name:
+                    global_config = item[it]
+                else:
+                    tmp_data[it] = item[it]
         if data:
             if type(data['customs']) != list:
                 data['customs'] = json.loads(data['customs'])
@@ -215,11 +220,13 @@ def get_chart(sid,old_data=[],istable=False,offset=0,length=0):
             for item in data['customs']:
                 for it in item:
                     if it in tmp_data:
-                        item[it] = tmp_data[it]
+                        item[it] = mysql_base.combineCustom(tmp_data[it],global_config)
+                    else:
+                        item[it] = global_config
                 keys.extend(item.keys())
             if keys:
                 source_data = datasource_b.get_data_by_ids(keys)
-                table_data = get_data(data,source_data)
+                table_data = get_data(data,source_data,global_config)
                 if table_data['status'] == 1:
                     chart_type = istable|data['chart_type']
                     result = {'status':1,"chart_type":chart_type,'msg':u''}

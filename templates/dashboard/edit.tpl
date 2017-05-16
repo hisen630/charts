@@ -53,9 +53,9 @@ ul {
                             <label>{{item.name}}</label><input type="text" class="form-control" style="display:none" value="{{item.id}}" name="ids">
                         </td>
                         <td>
-                            <button type="button" class="btn btn-defalut chart_up" title="move up"><span class="glyphicon glyphicon-arrow-up"></span></button>
-                            <button type="button" class="btn btn-defalut chart_down" title="move down"><span class="glyphicon glyphicon-arrow-down"></span></button>
-                            <button type="button" class="btn btn-defalut chart_del" title="delete"><span class="glyphicon glyphicon-remove"></span></button>
+                            <button type='button' class='btn btn-defalut chart_up' title='move up'><span class='glyphicon glyphicon-arrow-up'></span></button>
+                            <button type='button' class='btn btn-defalut chart_down' title='move down'><span class='glyphicon glyphicon-arrow-down'></span></button>
+                            <button type='button' class='btn btn-defalut chart_del' title='delete'><span class='glyphicon glyphicon-remove'></span></button>
                         </td>
                     </tr>
                     {%endfor%}

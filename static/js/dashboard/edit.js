@@ -42,14 +42,16 @@ $(function(){
             html.push("<tr id='chart_"+conf_obj.id+"'>")
             html.push("<td>"+conf_obj.id+"</td>")
             html.push("<td><label>"+conf_obj.name+"</label><input type='text' class='form-control' style='display:none' value='"+conf_obj.id+"' name='ids'></td>")
-            html.push("<td><button type='button' class='btn btn-danger chart_del'>删除</button></td>")
+            html.push("<td><button type='button' class='btn btn-defalut chart_up' title='move up'><span class='glyphicon glyphicon-arrow-up'></span></button><button type='button' class='btn btn-defalut chart_down' title='move down'><span class='glyphicon glyphicon-arrow-down'></span></button><button type='button' class='btn btn-danger chart_del'>删除</button></td>")
             html.push("</tr>")
             $("#data_group").append(html.join(""))
-            $("button[class*=chart_del]").on("click",function(){
-                $(this).parents("tr").remove()
-            })
+            bind_on()
         }
     })
+    bind_on()
+})
+
+function bind_on(){
     $("button[class*=chart_del]").on("click",function(){
         $(this).parents("tr").remove()
     })
@@ -67,4 +69,4 @@ $(function(){
             news.after(old)
         }
     })
-})
+}

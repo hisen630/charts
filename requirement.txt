@@ -5,3 +5,4 @@ web.py==0.38
 Flask==0.12
 Flask-Cors==3.0.2
 matplotlib==1.5.1
+pandas==0.20.1

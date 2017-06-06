@@ -18,12 +18,15 @@
     <link href="/static/plugin/metisMenu/demo.css" rel="stylesheet">
     {% block header %}
     {% endblock %}
+
+    {% block dot_js %}{% endblock %}
 </head>
 <body>
 <div id="wrapper">
 {% block nav %}{% endblock %}
 <div id="page-wrapper">
     <div class="row">
+{% block search %}{% endblock %}
         <div class="col-lg-12">
             {% block bread_crumbs %}
             {% endblock %}

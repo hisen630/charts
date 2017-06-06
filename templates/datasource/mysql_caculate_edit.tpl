@@ -23,7 +23,7 @@
         <label class="col-md-1 control-label">任务</label>
         <select name="tid" class="multiple col-md-10" >
             {% for item in data.tasks %}
-                <option value='{{item.id}}' {% if item.id==data.tid %}checked{%endif%}>{{item.name}}</option>
+                <option value='{{item.id}}' {% if item.id==data.tid %}selected{%endif%}>{{item.name}}</option>
             {% endfor %}
         </select>
     </div>

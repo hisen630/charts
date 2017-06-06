@@ -41,7 +41,7 @@ ul {
     <div class="col-md-12 form-group" >
         <select name="select_charts" class="col-md-10 multiple select_nopad">
             {% for item in datasources %}
-                <option value='{{item.id}}' data-conf="{{item.conf}}">{{item.name}}</option>
+                <option value='{{item.id}}' data-conf='{{item.conf}}'>{{item.name}}</option>
             {% endfor %}
         </select>
         <button type="button" id="add_chart" class="col-md-2 btn btn-primary">添加报表</button>

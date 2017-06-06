@@ -59,7 +59,7 @@ class Dashboard():
             if ajax:
                 return json.dumps(result,default=defaultencode)
             else:
-                return render_custom('dashboard/get_chart.tpl',data=result)
+                return render_custom('dashboard/get_chart.tpl',data=result,searchForMat=json.dumps(result['search']))
         return jsonify(result)
 
     #获取数据

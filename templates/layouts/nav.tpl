@@ -26,7 +26,7 @@
         <li><a href="#"><i class="glyphicon glyphicon-cog"></i> Settings</a>
         </li>
         <li class="divider"></li>
-        <li><a href="#"><i class="glyphicon glyphicon-log-out"></i> Logout</a>
+        <li><a href="/logout"><i class="glyphicon glyphicon-log-out"></i> Logout</a>
         </li>
       </ul>
       <!-- /.dropdown-user -->

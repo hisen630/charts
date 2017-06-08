@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base import render_custom
+from route import CustomView
 from flask import abort, redirect, url_for, jsonify
 from flask import request
 from common.utils import defaultencode
@@ -8,7 +9,7 @@ from common import mysql_base
 from base import base_b
 import json
 
-class DataSource():
+class DataSource(CustomView):
 
     #列表页
     def index(self):

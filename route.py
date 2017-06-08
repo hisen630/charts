@@ -3,9 +3,50 @@ import os
 import importlib
 import inspect
 from stat import S_ISDIR,S_ISREG
+from flask import request
+from flask.views import MethodView
+from flask import Flask, url_for, session, request, jsonify, redirect
+from hillinsight.storage import dbs
+import os
+from functools import wraps
+from conf import default
+if default._is_auth:
+    from hillinsight.web.auth import AuthManager, current_user, login_required, logout_user
+
+class CustomView(MethodView):
+
+    def dispatch_request(self, *args, **kwargs):
+        path = request.path.split("/")
+        if len(path) == 3:
+            meth = getattr(self, path[-1], None)
+            # meth = login_required(meth)
+        if meth is None and request.method == 'HEAD':
+            meth = getattr(self, 'get', None)
+        assert meth is not None, 'Unimplemented method %r' % request.method
+        return meth(*args, **kwargs)
+
+
 class Route():
     def __init__(self,flask_app,DIR):
         self.__app = flask_app
+        if default._is_auth:
+            ### define auth info
+            os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
+            domain = "sso.in.hillinsight.com"
+            # domain = "sso.hillinsight.com:59687"
+            self.__app.secret_key = os.environ.get('CLIENT_SECRET','WDRT6r081UBZqy7jiHRugbMheMbaDpls6cPH27jITbJH8K8DETmnWwDBsrSZ32WV')
+            self.auth_manager = AuthManager(self.__app,
+               consumer_key = os.environ.get('CLIENT_KEY', 'gg3IK199lZ1KVf8MPlzL0dSSpF2OZ2Y7'),
+               consumer_secret = os.environ.get('CLIENT_SECRET','WDRT6r081UBZqy7jiHRugbMheMbaDpls6cPH27jITbJH8K8DETmnWwDBsrSZ32WV'),
+               request_token_params={'scope': 'email'},
+               base_url='http://sso.in.hillinsight.com/api/',
+               request_token_url=None,
+               access_token_url='http://{}/oauth/token'.format(domain),
+               authorize_url='http://{}/oauth/authorize'.format(domain)
+            )
+            self.auth_obj = self.auth_manager.obj
+            ###
+
         self.__Dir = DIR
         self.viewControlDir = "{}/".format(DIR)
     def build(self):
@@ -29,6 +70,29 @@ class Route():
                     self.url(pathname,f.replace(".py",""))
                 else:
                     pass
+
+    def user_required(self,f):
+        @wraps(f)
+        def decorator(*args, **kwargs):
+            if default._is_auth:
+                
+                ### define auth info；you can define your self auth
+                is_white = False
+                try:
+                    for item in default._auth_white_list:
+                        item = item.lower()
+                        path = request.path.lower()
+                        if path.startswith(item):
+                            is_white = True
+                except Exception, e:
+                    pass
+                if not is_white  and not current_user.is_authenticated:
+                    return self.auth_obj.unauthorized()
+                ###
+
+            return f(*args, **kwargs)
+        return decorator
+
     def url(self,pathname,name):
         moduleStr = pathname.replace(".py","").replace("/",".")
         moduleObj = importlib.import_module(moduleStr)
@@ -43,6 +107,9 @@ class Route():
                 for methodName in dir(classObj):
                     if not methodName.startswith("__"):
                         urlPath = urlPath_low.replace(self.__Dir,"")
-                        self.__app.add_url_rule(urlPath+"/"+methodName.lower(), endpoint=urlPath+"/"+methodName, view_func=getattr(obj, methodName),methods=["GET","POST"])
+                        # view = getattr(obj, methodName)
+                        # view = login_required(view)
+                        view = self.user_required(obj.as_view(urlPath+"/"+methodName))
+                        self.__app.add_url_rule(urlPath+"/"+methodName.lower(), endpoint=urlPath+"/"+methodName, view_func=view,methods=["GET","POST"])
                         urlPath = urlPath_normal.replace(self.__Dir,"")
-                        self.__app.add_url_rule(urlPath+"/"+methodName.lower(), endpoint=urlPath+"/"+methodName, view_func=getattr(obj, methodName),methods=["GET","POST"])
+                        self.__app.add_url_rule(urlPath+"/"+methodName.lower(), endpoint=urlPath+"/"+methodName, view_func=view,methods=["GET","POST"])

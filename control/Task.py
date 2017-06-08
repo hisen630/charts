@@ -6,9 +6,10 @@ from common.utils import defaultencode
 from manager import  task_m
 from common import mysql_base
 from base import base_b
+from route import CustomView
 import json
 
-class Task():
+class Task(CustomView):
 
     #列表页
     def index(self):

@@ -12,3 +12,8 @@ _customs_name = "any"
 #hive查询表时是否包含表名
 __hive_is_have_dbs = False
 # __hive_is_have_dbs = True
+
+#auth all ;if you want to stop the auth,please set _is_auth=False
+_is_auth = False
+_auth_white_list = ["/dashboard/get_chart","/chart/get_chart"]
+

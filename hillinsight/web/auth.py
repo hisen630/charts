@@ -18,7 +18,6 @@ class User(object):
     def __init__(self, user_name):
         self.db = _mysql_config['sso']['master']['online']
         rows = self.db.query("select * from t_sso_user where name = $name", vars = {"name": user_name})
-        print rows
         if len(rows) == 1:
             self.is_active = True
             self.is_authenticated = True
@@ -57,6 +56,7 @@ class AuthManager(object):
         login_manager.session_protection = "strong"
         login_manager.login_view = "login"
         login_manager.init_app(app)
+        self.obj = login_manager
         oauth = OAuth(app)
         remote = oauth.remote_app('remote', **kwargs)
         @login_manager.unauthorized_handler
@@ -69,7 +69,6 @@ class AuthManager(object):
 
         @app.route('/authorized')
         def authorized():
-            print '~~~~~~~~~~~~~~~~~~~~~~~~~~'
             resp = remote.authorized_response()
             if resp is None:
                 return 'Access denied: reason=%s error=%s' % (
@@ -91,6 +90,6 @@ class AuthManager(object):
             return User(user_id)
 
 
-if __name__ == '__main__':
-    us = User('panwei')
-    print us.userInfo
+# if __name__ == '__main__':
+#     us = User('panwei')
+#     print us.userInfo

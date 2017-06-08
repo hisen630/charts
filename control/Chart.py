@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from common.base import render_custom
+from route import CustomView
 from flask import abort, redirect, url_for, jsonify
 from flask import request
 from common.utils import defaultencode
@@ -9,7 +10,7 @@ import sys
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-class Chart():
+class Chart(CustomView):
 
     #列表页
     def index(self):

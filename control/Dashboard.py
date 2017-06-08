@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 from common.base import render_custom
+from route import CustomView
 from flask import abort, redirect, url_for, jsonify
 from flask import request
 from common.utils import defaultencode
 from manager import dashboard_m
 import json
 
-class Dashboard():
+class Dashboard(CustomView):
 
     #列表页
     def index(self):

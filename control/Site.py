@@ -2,8 +2,9 @@
 from common.base import render_custom
 from flask import abort, redirect, url_for, jsonify
 from flask import request
+from route import CustomView
 
-class Site():
+class Site(CustomView):
     def index(self):
         return redirect(url_for("/chart/index"))
 	def edit(self):

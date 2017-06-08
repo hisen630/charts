@@ -44,9 +44,16 @@ class Route():
                access_token_url='http://{}/oauth/token'.format(domain),
                authorize_url='http://{}/oauth/authorize'.format(domain)
             )
-            self.auth_obj = self.auth_manager.obj
+            @self.__app.route('/logout')
+            def logout():
+                session.clear()
+                logout_user()
+                return redirect('http://{}/login'.format(domain));
             ###
-
+        else:
+            @self.__app.route('/logout')
+            def logout():
+                return redirect('/');
         self.__Dir = DIR
         self.viewControlDir = "{}/".format(DIR)
     def build(self):
@@ -82,12 +89,12 @@ class Route():
                     for item in default._auth_white_list:
                         item = item.lower()
                         path = request.path.lower()
-                        if path.startswith(item):
+                        if path.startswith(item) and item != "/":
                             is_white = True
                 except Exception, e:
                     pass
-                if not is_white  and not current_user.is_authenticated:
-                    return self.auth_obj.unauthorized()
+                if not is_white  and not (current_user.is_authenticated and session):
+                    return self.__app.login_manager.unauthorized()
                 ###
 
             return f(*args, **kwargs)

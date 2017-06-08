@@ -61,7 +61,7 @@ class AuthManager(object):
         remote = oauth.remote_app('remote', **kwargs)
         @login_manager.unauthorized_handler
         def unauthorized():
-            next_url = request.args.get('next') or request.referrer or request.url or None
+            next_url = request.args.get('next') or request.url or request.referrer or None
             #next_url = None
             return remote.authorize(
                 callback=url_for('authorized', next=next_url, _external=True)

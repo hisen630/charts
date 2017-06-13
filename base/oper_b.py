@@ -11,8 +11,8 @@ def where_in(items=()):
     if not items:
         return ""
     if len(items) == 1:
-        return "id={}".format(items)
-    return "IN ({})".format(",".join(map(str, items)))
+        return " {}".format(items)
+    return " IN ({})".format(",".join(map(str, items)))
 
 
 def get_data_by_ids(ids=()):

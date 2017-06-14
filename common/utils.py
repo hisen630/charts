@@ -10,6 +10,7 @@ import time
 
 from pandas import DataFrame,Series
 import pandas as pd;import numpy as np
+from collections import Iterable as IterType
 
 def is_chinese(uchar):
     """判断一个unicode是否是汉字"""
@@ -17,36 +18,36 @@ def is_chinese(uchar):
         return True
     else:
         return False
- 
+
 def is_number(uchar):
     """判断一个unicode是否是数字"""
     if uchar >= u'\u0030' and uchar<=u'\u0039':
         return True
     else:
         return False
- 
+
 def is_alphabet(uchar):
     """判断一个unicode是否是英文字母"""
     if (uchar >= u'\u0041' and uchar<=u'\u005a') or (uchar >= u'\u0061' and uchar<=u'\u007a'):
         return True
     else:
         return False
- 
+
 def is_other(uchar):
     """判断是否非汉字，数字和英文字符"""
     if not (is_chinese(uchar) or is_number(uchar) or is_alphabet(uchar)):
         return True
     else:
         return False
-    
+
 
 def strQ2B(ustring):
     """全角转半角"""
     rstring = ""
     for uchar in ustring:
         inside_code=ord(uchar)
-        if inside_code == 12288:                              #全角空格直接转换            
-            inside_code = 32 
+        if inside_code == 12288:                              #全角空格直接转换
+            inside_code = 32
         elif (inside_code >= 65281 and inside_code <= 65374): #全角字符（除空格）根据关系转化
             inside_code -= 65248
 
@@ -111,7 +112,7 @@ def get_trans_punc_func():
         u'《':u'<',
         u'》':u'>'
                    }
-    
+
     def _transform_punctuation(ustring):
         char_list = []
         for c in ustring:
@@ -128,7 +129,7 @@ def _get_dedup_empty():
     """将连续空白符替换成单个空白符"""
     import re
     multi_empty_p = re.compile(r'\s{2,}')
-    
+
     def _dedup_empty(ustr):
         return multi_empty_p.subn(u' ', ustr)[0]
     return _dedup_empty
@@ -139,7 +140,7 @@ def _get_remove_bracket():
     """去掉括号内的信息"""
     import re
     bracket_p = re.compile(r'(\(.*\))')
-    
+
     def _remove_bracket(ustr):
         return bracket_p.subn(u'', ustr)[0]
     return _remove_bracket
@@ -158,7 +159,7 @@ def split_by_cn_en(ustring):
             if _state == 0:
                 _split = True
             _state = 1
-                
+
         elif is_alphabet(uchar):
             if _state == 1:
                 _split = True
@@ -169,12 +170,12 @@ def split_by_cn_en(ustring):
                 retList.append(''.join(utmp))
                 utmp = []
             _split = False
-            
+
         utmp.append(uchar)
-    
+
     if len(utmp) > 0:
         retList.append(''.join(utmp))
-        
+
     return retList
 
 
@@ -214,27 +215,27 @@ def cluster_brands(brands_list, one_one_mapping=None, kw_mapping=None, kw_match=
     split_symbol - 对于brands_list中的品牌，使用该符号进行切分以得到品牌关键词
     cn_split - 是否进行中英文切分，若设置成True，则会在中英文分界处进行切分
     '''
-    
+
     if one_one_mapping is None:
         one_one_mapping = {}
     if kw_mapping is None:
         kw_mapping = {}
-    
+
     _tmp_one_one_mapping = {}
     for alias, principle in one_one_mapping.items():
         _tmp_one_one_mapping[normalize_str4brand(alias)] = principle
-    
+
     _tmp_kw_mapping = {}
     for principle, kw_set in kw_mapping.items():
         for kw in kw_set:
             _tmp_kw_mapping[normalize_str4brand(kw)] = principle
-    
-    
+
+
     brands_cluster = {} # brand -> set of brands
-    
+
     for brand in brands_list:
         normalized_brand = normalize_str4brand(brand)
-        
+
         # direct one one mapping
         one_one_brand = _tmp_one_one_mapping.get(normalized_brand, None)
         if one_one_brand:
@@ -248,21 +249,21 @@ def cluster_brands(brands_list, one_one_mapping=None, kw_mapping=None, kw_match=
                 brands_cluster[one_one_brand] = set()
             brands_cluster[one_one_brand].add(brand) # 最终输出的聚类内部都是归一化前的
             continue
-        
-    
+
+
         # try kw match
         if split_symbol:
             symbol_kw_set = set(normalized_brand.split(split_symbol))
         else:
             symbol_kw_set = set([normalized_brand,])
-        
+
         if cn_split:
             kw_set = set()
             for kw in symbol_kw_set:
                 kw_set.update(split_by_cn_en(kw))
         else:
             kw_set = symbol_kw_set
-        
+
         candidate_dict = {} # principle -> count
         for kw in kw_set:
             principle = _tmp_kw_mapping.get(kw,None)
@@ -291,13 +292,13 @@ def cluster_brands(brands_list, one_one_mapping=None, kw_mapping=None, kw_match=
                     if kw not in _tmp_kw_mapping:
                         _tmp_kw_mapping[kw] = candidate_tuple_list[0][0]
                 continue
-                
+
         # cluster
         brands_cluster[brand] = set([brand,])
         for kw in kw_set:
             if kw not in _tmp_kw_mapping:
                 _tmp_kw_mapping[kw] = brand
-                
+
     return brands_cluster
 def array_column(data,format,format_str=False):
     """取list或者dict 二级下面的某列，比如 直接从数据库返回的结果我想取name列，[{'name'：'fds','id':1},{'name':'fdsa','id':2}]"""
@@ -352,8 +353,8 @@ def is_exist_hive(table):
 
 def sumStr(string):
     from hashlib import md5
-    m = md5()  
-    m.update(string.encode('utf-8'))  
+    m = md5()
+    m.update(string.encode('utf-8'))
     return m.hexdigest()
 
 def get_hive_column(h_table):
@@ -374,7 +375,7 @@ def get_hive_column(h_table):
     if p.close():
         result = []
         part = []
-        
+
     return [result,part]
 
 def get_hive_location(h_table):
@@ -413,7 +414,7 @@ def get_uniquekey(db,table):
                 if 'PRIMARY KEY'.lower() in item.lower():
                     result = _match.search(item).group(0).replace("`","")
                 if 'UNIQUE key'.lower() in item.lower() or 'UNIQUE index'.lower() in item.lower():
-                    result = _match.search(item).group(0).replace("`","")    
+                    result = _match.search(item).group(0).replace("`","")
     except Exception, e:
         pass
     return result
@@ -513,7 +514,7 @@ def format_number(data):
         if tmp:
             result.append(tmp)
     return result
-                
+
 
 def data_trans(data,columns_names,code,istable=True):
     if columns_names:
@@ -585,3 +586,13 @@ def get_time(isnow=True):
     else:
         times = "2038-01-01 00:00:00"
     return times
+
+
+# ============================================================================
+def to_iter(items=()):
+    """ 转换为迭代类型
+        1 -> [1, ]
+        (1, 2) -> (1, 2)
+        "123" -> ["123", ]
+    """
+    return items if isinstance(items, IterType) and not isinstance(items, basestring) else [items]

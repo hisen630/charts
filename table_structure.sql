@@ -122,7 +122,31 @@ CREATE TABLE IF NOT EXISTS `t_chart_task_relation` (
   KEY `tid` (`tid`,`date`)
 ) ENGINE=InnoDB AUTO_INCREMENT=106 DEFAULT CHARSET=utf8 COMMENT='任务与创建表的关系';
 
-DELETE FROM `t_chart_menu`;
+-- DELETE FROM `t_chart_menu`;
+
+
+CREATE TABLE `t_chart_fields_oper` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`ds_types` VARCHAR(50) NOT NULL COMMENT '数据源类型',
+	`fields_types` VARCHAR(50) NOT NULL COMMENT '字段类型',
+	`oper` VARCHAR(10) NOT NULL COMMENT '操作符',
+	`handler` VARCHAR(50) NOT NULL DEFAULT '' COMMENT '处理函数',
+	PRIMARY KEY (`id`),
+	INDEX `ds_types_fields_types_oper` (`ds_types`, `fields_types`, `oper`)
+) COMMENT='字段处理操作' ENGINE=InnoDB ;
+
+CREATE TABLE `t_chart_fields` (
+	`id` INT(11) NOT NULL AUTO_INCREMENT,
+	`type` TINYINT(4) NOT NULL COMMENT '连接类型',
+	`dbs` VARCHAR(50) NOT NULL COMMENT '数据库或者索引',
+	`tables` VARCHAR(50) NOT NULL COMMENT '索引类型或数据表',
+	`columns` TEXT NOT NULL COMMENT '定义的字段名称与类型',
+	`status` TINYINT(4) NOT NULL DEFAULT '0' COMMENT '是否有效',
+	PRIMARY KEY (`id`),
+	INDEX `dbs` (`dbs`, `tables`),	INDEX `status` (`status`)
+) COMMENT='自定义表和字段关系，用于拖拽使用' COLLATE='utf8_general_ci' ENGINE=InnoDB;
+
+
 /*!40000 ALTER TABLE `t_chart_menu` DISABLE KEYS */;
 INSERT INTO `t_chart_menu` (`id`, `name`, `url`, `level`, `parent_id`, `sort`, `status`) VALUES
   (1, '数据源管理', '/datasource/', 1, 0, 100, 1),
@@ -149,7 +173,7 @@ INSERT INTO `t_chart_menu` (`id`, `name`, `url`, `level`, `parent_id`, `sort`, `
 /*!40000 ALTER TABLE `t_chart_menu` ENABLE KEYS */;
 
 -- 正在导出表  god_metric_meta.t_chart_modules 的数据：~7 rows (大约)
-DELETE FROM `t_chart_modules`;
+-- DELETE FROM `t_chart_modules`;
 /*!40000 ALTER TABLE `t_chart_modules` DISABLE KEYS */;
 INSERT INTO `t_chart_modules` (`id`, `name`, `module_types`, `types`, `template`, `status`) VALUES
   (1, 'fakecube', 'datasource', 2, 'datasource/fakecube_edit.tpl', 1),
@@ -188,7 +212,7 @@ INSERT INTO `god_metric_meta`.`t_chart_reports` (`id`, `name`, `conf`, `code`, `
 INSERT INTO `god_metric_meta`.`t_chart_reports` (`id`, `name`, `conf`, `code`, `customs`, `user`, `uptime`, `status`) VALUES ('2', 'pandas转换mysql', '{\"chart\":{\"type\":\"column\"},\"plotOptions\":{\"series\":{\"stacking\":\"percent\",\"animation\":true}},\"title\":{\"text\":\"每年微博关注数占比\"},\"subtitle\":{\"text\":\"\"},\"exporting\":{},\"yAxis\":[{\"title\":{\"text\":\"占比\"}}],\"xAxis\":[{\"type\":\"category\"}],\"series\":[{\"data\":[[2009,10]],\"name\":\"0~100\",\"_colorIndex\":0,\"_symbolIndex\":0},{\"data\":[[2009,144]],\"name\":\"1000以上\",\"_colorIndex\":1,\"_symbolIndex\":1},{\"data\":[[2009,218]],\"name\":\"100~1000\",\"_colorIndex\":2,\"_symbolIndex\":2}],\"credits\":{\"enabled\":false}}', '', '[{\"1\": \"\"}]', '0', '2017-04-26 19:26:21', '1');
 
 -- 正在导出表  god_metric_meta.t_chart_test_data 的数据：~1,000 rows (大约)
-DELETE FROM `t_chart_test_data`;
+-- DELETE FROM `t_chart_test_data`;
 /*!40000 ALTER TABLE `t_chart_test_data` DISABLE KEYS */;
 INSERT INTO `t_chart_test_data` (`uid`, `name`, `followers_count`, `friends_count`, `created_at`) VALUES
   (22222, '退役军人', 9075, 205, '2016-03-18 17:30:58'),

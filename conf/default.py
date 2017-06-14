@@ -17,3 +17,4 @@ __hive_is_have_dbs = False
 _is_auth = False
 _auth_white_list = ["/dashboard/get_chart","/chart/get_chart","/"]
 
+debug = False

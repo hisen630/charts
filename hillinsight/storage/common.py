@@ -1,10 +1,9 @@
 import os
-
+from conf.default import mysql_config_file
 _mysql_config = {}
 
-def load_mysql_config():
+def load_mysql_config(conf_filename=mysql_config_file):
     env = os.getenv('HILLINSIGHT_MYSQL_CONF')
-    conf_filename = '/home/work/conf/storage/mysql.conf'
     if env != None and os.path.exists(env.strip()):
         conf_filename = env
     configs = {}

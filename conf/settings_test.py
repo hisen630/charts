@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __base__ import ConfigBase
+from logging import DEBUG
 
 
 class Config(ConfigBase):
@@ -22,6 +23,7 @@ class Config(ConfigBase):
     _auth_white_list = ["/dashboard/get_chart", "/chart/get_chart", "/"]
     elastic_search_api = "http://127.0.0.1:9999/{}/{}/_search"
     mysql_config_file = "/Users/luoruiqing/work/charts/hillinsight/storage/mysql.conf"
+    LOG_LEVEL = DEBUG
 
 
 if __name__ == '__main__':

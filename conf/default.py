@@ -18,6 +18,6 @@ __hive_is_have_dbs = False
 _is_auth = False
 _auth_white_list = ["/dashboard/get_chart", "/chart/get_chart", "/"]
 if debug:  # 调试状态
-    api = "http://127.0.0.1:9999/{}/{}/_search"
+    elastic_search_api = "http://127.0.0.1:9999/{}/{}/_search"
 else:  # 线上状态
-    api = "http://hi-prod-19:9200/{}/{}/_search"
+    elastic_search_api = "http://hi-prod-19:9200/{}/{}/_search"

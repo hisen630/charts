@@ -14,6 +14,6 @@ class ConfigBase(object):
     hive_is_have_dbs = abstractproperty()
     _is_auth = abstractproperty()  # 是否开启用户验证
     _auth_white_list = abstractproperty()
-    elastic_search_api = abstractproperty()  # ES API地址
-    mysql_config_file = abstractproperty()  # 数据库配置文件
+    ELASTIC_SEARCH_API_URL = abstractproperty()  # ES API地址
+    MYSQL_CONFIG_FILE = abstractproperty()  # 数据库配置文件
     LOG_LEVEL = abstractproperty()  # 日志级别

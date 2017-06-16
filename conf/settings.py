@@ -22,6 +22,6 @@ class Config(ConfigBase):
     # auth all ;if you want to stop the auth,please set _is_auth=False
     _is_auth = False
     _auth_white_list = ["/dashboard/get_chart", "/chart/get_chart", "/"]
-    elastic_search_api = "http://hi-prod-19:9200/{}/{}/_search"
-    mysql_config_file = "/home/work/conf/storage/mysql.conf"
+    ELASTIC_SEARCH_API_URL = "http://hi-prod-19:9200/{}/{}/_search"
+    MYSQL_CONFIG_FILE = "/home/work/conf/storage/mysql.conf"
     LOG_LEVEL = INFO

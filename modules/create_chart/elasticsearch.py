@@ -91,7 +91,7 @@ class ElasticSearch(ViewMapping):
                                       "extended_bounds": {"min": 1464834955997, "max": 1496370955997}},
                    "terms": {"field": "fg_category2_name.raw", "size": 5, "order": {"1": "desc"}}}
 
-    from conf.default import elastic_search_api as api
+    from conf.default import ELASTIC_SEARCH_API_URL as api
 
     def __init__(self, *args, **kwargs):
         super(ElasticSearch, self).__init__(*args, **kwargs)

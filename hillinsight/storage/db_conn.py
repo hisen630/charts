@@ -1,9 +1,9 @@
 from hillinsight.storage import dbs
-from conf.default import mysql_config_file
+from conf.default import MYSQL_CONFIG_FILE
 import os
 import pprint
 _mysql_config = {}
-def load_mysql_config(conf_filename=mysql_config_file):
+def load_mysql_config(conf_filename=MYSQL_CONFIG_FILE):
     env = os.getenv('HILLINSIGHT_MYSQL_CONF')
     if env != None and os.path.exists(env.strip()):
         conf_filename = env

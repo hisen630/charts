@@ -12,7 +12,9 @@ if debug:  # debug状态下打印sql
 
     def print_sql(sql, *args, **kwargs):
         """ 负责SQL打印 在debug状态下"""
+        print "=" * 79
         print "[SQL]: ", sql
+        print "=" * 79
         return query(sql, *args, **kwargs)
 
 

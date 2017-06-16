@@ -7,7 +7,7 @@ class ConfigBase(object):
     __metaclass__ = ABCMeta
 
     _time_column = abstractproperty()
-    _modules_name = abstractproperty()
+    modules_name = abstractproperty()
     _notebook_path = abstractproperty()
     _notebook_url = abstractproperty()
     _customs_name = abstractproperty()

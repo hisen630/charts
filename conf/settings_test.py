@@ -4,7 +4,7 @@ from __base__ import ConfigBase
 
 class Config(ConfigBase):
     _time_column = "tasks_date_time"
-    _modules_name = 'modules'
+    modules_name = 'modules'
     # notebook save path
     # _notebook_path = "c:/Users/jianczhang/"
     _notebook_path = "/home/jianczhang/notebook"

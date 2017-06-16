@@ -2,7 +2,7 @@
 from hillinsight.storage import dbs
 from dj_database_url import parse as parse_db_url
 from conf import hive as _hive
-from conf.default import __hive_is_have_dbs
+from conf.default import hive_is_have_dbs
 import hql_profile_base
 import datetime
 import os
@@ -76,7 +76,7 @@ def readfile_to_group_hive(filename):
         #防止出现换行符，如果出现无法插入数据
         line = [ it.strip() for it in line ]
         if c == 0:
-            if not __hive_is_have_dbs:
+            if not hive_is_have_dbs:
                 #防止出现表名入test.test
                 tmp_line = []
                 for it in line:

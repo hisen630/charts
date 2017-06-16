@@ -11,6 +11,10 @@ import time
 from pandas import DataFrame,Series
 import pandas as pd;import numpy as np
 from collections import Iterable as IterType
+from logging import getLogger, DEBUG
+
+logger = getLogger()
+logger.setLevel(DEBUG)
 
 def is_chinese(uchar):
     """判断一个unicode是否是汉字"""
@@ -455,6 +459,7 @@ def _req_url(url,data):
     data = json.dumps(data)
     for j in range(repeat):
         # try:
+        logger.debug("Request {}.".format(url))
         res = urllib2.Request(url,data)
         req = urllib2.urlopen(res).read()
         break

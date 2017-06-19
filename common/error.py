@@ -6,7 +6,7 @@ class ChartsBaseException(BaseException):
     """ Charts 错误基类 """
 
 
-class ChartsException(ChartsBaseException, Exception):
+class ChartsException(Exception):
     """ 错误类 """
     status = False
     code = 0
@@ -16,8 +16,6 @@ class ChartsException(ChartsBaseException, Exception):
 class ChartsRequestParamsError(ChartsException):
     """ 请求参数错误 """
     code = 200
-
-
 
 
 if __name__ == '__main__':

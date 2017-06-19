@@ -1,10 +1,9 @@
 # -*- coding: utf-8 -*-
+from __base__ import ConfigDefault
+from logging import DEBUG
 
-from __base__ import ConfigBase
-from logging import INFO
 
-
-class Config(ConfigBase):
+class Config(ConfigDefault):
     _time_column = "tasks_date_time"
     modules_name = 'modules'
     # notebook save path
@@ -22,6 +21,11 @@ class Config(ConfigBase):
     # auth all ;if you want to stop the auth,please set _is_auth=False
     _is_auth = False
     _auth_white_list = ["/dashboard/get_chart", "/chart/get_chart", "/"]
-    ELASTIC_SEARCH_API_URL = "http://hi-prod-19:9200/{}/{}/_search"
-    MYSQL_CONFIG_FILE = "/home/work/conf/storage/mysql.conf"
-    LOG_LEVEL = INFO
+    elastic_search_api = "http://127.0.0.1:9999/{}/{}/_search"
+    MYSQL_CONFIG_FILE = "/Users/luoruiqing/work/charts/hillinsight/storage/mysql.conf"
+    LOG_LEVEL = DEBUG
+    ELASTIC_SEARCH_API_URL = "http://127.0.0.1:9999/{}/{}/_search"
+
+
+if __name__ == '__main__':
+    Config()

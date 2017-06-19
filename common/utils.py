@@ -534,7 +534,7 @@ def get_py_file(dirs):
     if dirs:
         for item in glob.glob(dirs):
             module_name, ext = os.path.splitext(os.path.basename(item))
-            if ext == ".py" and module_name != "__init__":
+            if ext == ".py" and not module_name.startswith("__"):  # 不能是下划线开头
                 result.append(module_name)
     return result
 

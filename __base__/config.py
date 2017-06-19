@@ -1,6 +1,10 @@
 # coding:utf-8
-from conf.__base__ import ConfigBase
-from abc import abstractproperty
+
+from abc import ABCMeta, abstractproperty
+
+
+class ConfigBase(object):
+    __metaclass__ = ABCMeta
 
 
 class ConfigDefault(ConfigBase):

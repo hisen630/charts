@@ -1,13 +1,13 @@
 # coding:utf-8
 
-from __base__ import RTCB
+from __base__ import RTC
 from json import loads
 from common.utils import _req_url
 from pandas import DataFrame
 from common.utils import to_table
 
 
-class ElasticSearchRTC(RTCB):
+class ElasticSearchRTC(RTC):
     """ ES request body 映射  每个实例解决一次解析 """
     type = 4
 

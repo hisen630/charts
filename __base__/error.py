@@ -13,12 +13,12 @@ class ChartsException(Exception):
     msg = "Charts Error."
 
 
-class ChartsRequestParamsError(ChartsException):
-    """ 请求参数错误 """
-    code = 200
-
-
 if __name__ == '__main__':
+    class ChartsRequestParamsError(ChartsException):
+        """ 请求参数错误 """
+        code = 400
+
+
     try:
         raise ChartsRequestParamsError("这里是错误提示")
     except ChartsException, e:

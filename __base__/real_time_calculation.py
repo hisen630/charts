@@ -1,11 +1,13 @@
 # coding:utf-8
 
-from modules.__base__ import DataSourceMappingBase
+from mapping import DataSourceMappingBase
 
 
 class RealTimeCalculationBase(DataSourceMappingBase):
     """ 实时计算基类 """
 
+
+class RealTimeCalculation(RealTimeCalculationBase):
     def __init__(self, index_or_db="online_taobao_*_*-*-*", type_or_table="item_list",
                  columns=(), rows=(), query="*"):
         self.index_or_db = index_or_db
@@ -15,4 +17,4 @@ class RealTimeCalculationBase(DataSourceMappingBase):
         self.query = query
 
 
-RTCB = RealTimeCalculationBase
+RTC = RealTimeCalculation

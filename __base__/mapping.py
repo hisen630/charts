@@ -15,8 +15,3 @@ class DataSourceMappingBase(MappingBase):
 class TaskMappingBase(MappingBase):
     """ 任务类型映射 """
     types = abstractproperty()  # 类型 兼容老版本代码
-
-
-class NotebookBase(object):
-    """ NoteBook 基类 """
-    __metaclass__ = ABCMeta

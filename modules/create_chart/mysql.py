@@ -1,12 +1,12 @@
 # coding:utf-8
-from __base__ import RTCB
+from __base__ import RTC
 from common.mysql_base import check_conf, parse_mysql
 from hillinsight.storage.dbs import create_engine_custom
 
 """ sum(gmv)  关键字 sql聚合 """
 
 
-class Manager(RTCB):
+class Manager(RTC):
     type = 0  # 类型为mysql
 
     def preview(self, row, oper):

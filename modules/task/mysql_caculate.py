@@ -1,12 +1,12 @@
 # -*- coding: utf-8 -*-
-from __base__ import TaskMappingBase
+from __base__ import TaskMapping, Notebook
 import json, time
 from conf.default import _time_column
 from common import mysql_base, utils
 from common.mysql_autooper_base import AutoOper
 
 
-class Manager(TaskMappingBase):
+class Manager(TaskMapping, Notebook):
     """Task for Mysql"""
     types = 1
 

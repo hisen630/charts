@@ -1,13 +1,19 @@
 # coding:utf-8
 from __future__ import unicode_literals
+from abc import ABCMeta
 
 
-class ChartsBaseException(BaseException):
+class SystemBaseExceptionBase(BaseException):
     """ Charts 错误基类 """
 
 
-class ChartsException(Exception):
+class SystemExceptionBase(Exception):
     """ 错误类 """
+    __metaclass__ = ABCMeta
+
+
+class ChartsException(SystemExceptionBase):
+    """ 错误实现类 """
     status = False
     code = 0
     msg = "Charts Error."

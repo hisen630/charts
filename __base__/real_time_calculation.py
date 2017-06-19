@@ -1,13 +1,22 @@
 # coding:utf-8
+from abc import ABCMeta
+from mapping import Mapping
 
-from mapping import DataSourceMappingBase
 
-
-class RealTimeCalculationBase(DataSourceMappingBase):
+class RealTimeCalculationBase(object):
     """ 实时计算基类 """
+    __metaclass__ = ABCMeta
 
 
 class RealTimeCalculation(RealTimeCalculationBase):
+    """ 实时计算基类 """
+
+
+class RealTimeCalculationMappingBaseBase(RealTimeCalculation, Mapping):
+    """ 实时计算基础方法并对应映射层 """
+
+
+class RealTimeCalculation(RealTimeCalculationMappingBaseBase):
     def __init__(self, index_or_db="online_taobao_*_*-*-*", type_or_table="item_list",
                  columns=(), rows=(), query="*"):
         self.index_or_db = index_or_db

@@ -1,6 +1,20 @@
 # coding:utf-8
-from abc import abstractmethod
-from mapping import TaskMappingBase
+from abc import ABCMeta, abstractmethod, abstractproperty
+from mapping import Mapping1
+
+
+class TaskBase(object):
+    """ 任务基类 """
+    __metaclass__ = ABCMeta
+
+
+class Task(TaskBase):
+    """ 任务层 """
+
+
+class TaskMappingBase(Task, Mapping1):
+    """ 任务类型映射 """
+    types = abstractproperty()  # 类型 兼容老版本代码
 
 
 class TaskMapping(TaskMappingBase):
@@ -26,6 +40,3 @@ class TaskMapping(TaskMappingBase):
     def run_task(self):
         """ 运行任务 """
         raise NotImplementedError()
-
-
-

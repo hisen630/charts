@@ -4,10 +4,17 @@ from abc import ABCMeta, abstractproperty
 
 
 class ConfigBase(object):
+    """ 配置基类 """
     __metaclass__ = ABCMeta
 
 
-class ConfigDefault(ConfigBase):
+class Config(ConfigBase):
+    """ 配置类 """
+    __metaclass__ = ABCMeta
+
+
+class ConfigDefault(Config):
+    """ 默认配置类 """
     # TIME_COLUMN = abstractproperty()
     _time_column = abstractproperty()
     _customs_name = abstractproperty()  # 全局设置名称,用于控制自定义全局参数的key，默认为any

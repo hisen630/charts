@@ -7,11 +7,10 @@ class MappingBase(object):
     __metaclass__ = ABCMeta
 
 
-class DataSourceMappingBase(MappingBase):
+class Mapping(MappingBase):
     """ 数据源映射 """
     type = abstractproperty()  # 类型
 
 
-class TaskMappingBase(MappingBase):
-    """ 任务类型映射 """
-    types = abstractproperty()  # 类型 兼容老版本代码
+class Mapping1(MappingBase):
+    types = abstractproperty()  # 类型

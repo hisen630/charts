@@ -1,18 +1,13 @@
 # coding:utf-8
-
-
-from modules import DataSource
+from __base__ import RTCB
 from common.mysql_base import check_conf, parse_mysql
 from hillinsight.storage.dbs import create_engine_custom
 
 """ sum(gmv)  关键字 sql聚合 """
 
 
-class Manager(DataSource):
+class Manager(RTCB):
     type = 0  # 类型为mysql
-
-    def save_dict(self):
-        pass
 
     def preview(self, row, oper):
         database_config = row["dbs"]
@@ -25,7 +20,4 @@ class Manager(DataSource):
 
         for item in conn.query("show tables;"):
             print item
-        # 没有关闭数据库连接吗？conn.close()
-
-        pass
-
+            # 没有关闭数据库连接吗？conn.close()

@@ -1,28 +1,13 @@
 # coding:utf-8
-""" 先保证任务可用 """
-from abc import ABCMeta, abstractproperty
+
+from __base__ import RTCB
 from json import loads
 from common.utils import _req_url
 from pandas import DataFrame
 from common.utils import to_table
 
 
-class ViewMappingBase(object):
-    __metaclass__ = ABCMeta
-    type = abstractproperty()
-
-
-class ViewMapping(ViewMappingBase):
-    def __init__(self, index_or_db="online_taobao_*_*-*-*", type_or_table="item_list",
-                 columns=(), rows=(), query="*"):
-        self.index_or_db = index_or_db
-        self.type_or_table = type_or_table
-        self.columns = columns or [u'fg_category2_name.raw__terms']
-        self.rows = rows or [u'gmv__value', u'view_price__value', u'month_sale__value']
-        self.query = query
-
-
-class ElasticSearch(ViewMapping):
+class ElasticSearchRTC(RTCB):
     """ ES request body 映射  每个实例解决一次解析 """
     type = 4
 
@@ -91,7 +76,7 @@ class ElasticSearch(ViewMapping):
     from conf.default import ELASTIC_SEARCH_API_URL as api
 
     def __init__(self, *args, **kwargs):
-        super(ElasticSearch, self).__init__(*args, **kwargs)
+        super(ElasticSearchRTC, self).__init__(*args, **kwargs)
         if not self.columns and self.rows:
             raise Exception("请检查rows或columns是否为空")
         self.request_body = self.default_request_body.copy()

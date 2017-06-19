@@ -1,6 +1,6 @@
 # coding:utf-8
 """ 先保证任务可用 """
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty
 from json import loads
 from common.utils import _req_url
 from pandas import DataFrame
@@ -9,12 +9,7 @@ from common.utils import to_table
 
 class ViewMappingBase(object):
     __metaclass__ = ABCMeta
-
-    def __preview__(self):
-        """ 预览接口 """
-
-    def get_data(self):
-        """ 获得数据接口 """
+    type = abstractproperty()
 
 
 class ViewMapping(ViewMappingBase):
@@ -22,13 +17,15 @@ class ViewMapping(ViewMappingBase):
                  columns=(), rows=(), query="*"):
         self.index_or_db = index_or_db
         self.type_or_table = type_or_table
-        self.columns = columns or [u'fg_category2_name.raw__terms', u'fg_category3_name.raw__terms']
+        self.columns = columns or [u'fg_category2_name.raw__terms']
         self.rows = rows or [u'gmv__value', u'view_price__value', u'month_sale__value']
         self.query = query
 
 
 class ElasticSearch(ViewMapping):
     """ ES request body 映射  每个实例解决一次解析 """
+    type = 4
+
     default_request_body = {
         "size": 0,
         "query": {

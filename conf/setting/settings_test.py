@@ -10,8 +10,8 @@ class Config(ConfigDefault):
     _notebook_url = "http://localhost:8888"
     _customs_name = "any"
     hive_is_have_dbs = True
-    _is_auth = False
-    _auth_white_list = ["/dashboard/get_chart", "/chart/get_chart", "/"]
+    IF_AUTH = False
+    AUTH_WHITE_LIST = ["/dashboard/get_chart", "/chart/get_chart", "/"]
     MYSQL_CONFIG_FILE = "/Users/luoruiqing/work/charts/hillinsight/storage/mysql.conf"
     LOG_LEVEL = DEBUG
     ELASTIC_SEARCH_API_URL = "http://127.0.0.1:9999/{}/{}/_search"

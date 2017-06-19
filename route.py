@@ -9,8 +9,9 @@ from flask import Flask, url_for, session, request, jsonify, redirect
 from hillinsight.storage import dbs
 import os
 from functools import wraps
-from conf import default
-if default._is_auth:
+from conf.default import IF_AUTH, AUTH_WHITE_LIST
+
+if IF_AUTH:
     from hillinsight.web.auth import AuthManager, current_user, login_required, logout_user
 
 class CustomView(MethodView):
@@ -29,7 +30,7 @@ class CustomView(MethodView):
 class Route():
     def __init__(self,flask_app,DIR):
         self.__app = flask_app
-        if default._is_auth:
+        if IF_AUTH:
             ### define auth info
             os.environ['OAUTHLIB_INSECURE_TRANSPORT'] = 'true'
             domain = "sso.in.hillinsight.com"
@@ -81,12 +82,12 @@ class Route():
     def user_required(self,f):
         @wraps(f)
         def decorator(*args, **kwargs):
-            if default._is_auth:
+            if IF_AUTH:
                 
                 ### define auth info；you can define your self auth
                 is_white = False
                 try:
-                    for item in default._auth_white_list:
+                    for item in AUTH_WHITE_LIST:
                         item = item.lower()
                         path = request.path.lower()
                         if path.startswith(item) and item != "/":

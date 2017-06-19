@@ -6,7 +6,7 @@ from logging import INFO
 
 class Config(ConfigDefault):
     _time_column = "tasks_date_time"
-    modules_name = 'modules'
+    MODULES_NAME = 'modules'
     _notebook_path = "/home/jianczhang/notebook"
     _notebook_url = "http://notebook.in.hillinsight.com"
     _customs_name = "any"

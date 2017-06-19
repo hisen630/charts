@@ -3,18 +3,18 @@ from json import dumps
 from manager import menu_m
 from utils import get_py_file
 from web.utils import IterBetter
-from conf.default import modules_name
+from conf.default import MODULES_NAME
 from flask import request, render_template as render
 
 '''get modules from python file'''
 
 
-def get_module_object(_modules_split):
+def get_module_object(_modules_split, modules=MODULES_NAME):
     objects = {}
-    files = get_py_file("{}/{}/*".format(modules_name, _modules_split))
+    files = get_py_file("{}/{}/*".format(modules, _modules_split))
     for it in files:
         try:
-            tmp = __import__('{}.{}.{}'.format(modules_name, _modules_split, it), globals(), locals(), [it])
+            tmp = __import__('{}.{}.{}'.format(modules, _modules_split, it), globals(), locals(), [it])
             a = tmp.Manager()
             objects[it] = a
         except Exception, e:

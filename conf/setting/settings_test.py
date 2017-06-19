@@ -5,7 +5,7 @@ from logging import DEBUG
 
 class Config(ConfigDefault):
     _time_column = "tasks_date_time"
-    modules_name = 'modules'
+    MODULES_NAME = 'modules'
     _notebook_path = "c:/Users/jianczhang/"
     _notebook_url = "http://localhost:8888"
     _customs_name = "any"

@@ -33,7 +33,7 @@ The following browsers have passed all of the automated Charts tests:
 
 - pip install -r requirements.txt
 - run the table_structure.sql in the mysql console
-- configure the conf/setting/settings/Config.py  NOTEBOOK_PATH and NOTEBOOK_URL
+- configure the conf/setting/settings.py class Config  NOTEBOOK_PATH and NOTEBOOK_URL
 
 - set the path HILLINSIGHT_MYSQL_CONF that the mysql conf like hillinsight/storage/mysql.conf 
     db=database,user=user, pw=password,host=localhost,port=port,master=is_master,online=is_online

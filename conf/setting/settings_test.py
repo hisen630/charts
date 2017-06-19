@@ -12,7 +12,6 @@ class Config(ConfigDefault):
     hive_is_have_dbs = True
     _is_auth = False
     _auth_white_list = ["/dashboard/get_chart", "/chart/get_chart", "/"]
-    elastic_search_api = "http://127.0.0.1:9999/{}/{}/_search"
     MYSQL_CONFIG_FILE = "/Users/luoruiqing/work/charts/hillinsight/storage/mysql.conf"
     LOG_LEVEL = DEBUG
     ELASTIC_SEARCH_API_URL = "http://127.0.0.1:9999/{}/{}/_search"

@@ -8,7 +8,7 @@ from common import mysql_base
 from common.utils import defaultencode
 import datasource_m,chart_m
 from common.base import get_module_object
-from conf.default import _notebook_path
+from conf.default import NOTEBOOK_PATH
 
 _header = [u'#运行如下语句进行数据准备','import web',r'%matplotlib inline',r'%pylab inline','from pandas import DataFrame,Series',
         'import pandas as pd;import numpy as np','from hillinsight.storage import dbs']
@@ -26,7 +26,7 @@ def get_notebook(form):
     code = []
     name = notebook_b.new_notebook()
     if name:
-        path = '{}/{}.data_tmp'.format(_notebook_path,name)
+        path = '{}/{}.data_tmp'.format(NOTEBOOK_PATH,name)
         if result['status'] == 1:
             for item in objects:
                 if objects[item].types == types:
@@ -50,7 +50,7 @@ def get_notebook_muti(form):
     data = chart_m.get_data_by_form(form,True)
     data = json.dumps(data,default=defaultencode)
     name = notebook_b.new_notebook()
-    path = '{}{}.data_tmp'.format(_notebook_path,name)
+    path = '{}{}.data_tmp'.format(NOTEBOOK_PATH,name)
     try:
         file_object = open(path, 'wb')
         file_object.write(data)

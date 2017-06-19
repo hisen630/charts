@@ -6,10 +6,10 @@ from logging import DEBUG
 class Config(ConfigDefault):
     _time_column = "tasks_date_time"
     MODULES_NAME = 'modules'
-    _notebook_path = "c:/Users/jianczhang/"
-    _notebook_url = "http://localhost:8888"
+    NOTEBOOK_PATH = "c:/Users/jianczhang/"
+    NOTEBOOK_URL = "http://localhost:8888"
     _customs_name = "any"
-    hive_is_have_dbs = True
+    HIVE_IS_HAVE_DBS = True
     IF_AUTH = False
     AUTH_WHITE_LIST = ["/dashboard/get_chart", "/chart/get_chart", "/"]
     MYSQL_CONFIG_FILE = "/Users/luoruiqing/work/charts/hillinsight/storage/mysql.conf"

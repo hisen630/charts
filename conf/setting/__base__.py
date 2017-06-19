@@ -6,11 +6,12 @@ from abc import abstractproperty
 class ConfigDefault(ConfigBase):
     # TIME_COLUMN = abstractproperty()
     _time_column = abstractproperty()
-    MODULES_NAME = abstractproperty()  # 映射 modules 文件夹地址
-    _notebook_path = abstractproperty()  # notebook 保存路径
-    _notebook_url = abstractproperty()  # notebook URl地址
     _customs_name = abstractproperty()  # 全局设置名称,用于控制自定义全局参数的key，默认为any
-    hive_is_have_dbs = abstractproperty()  # hive查询表时是否包含表名
+
+    MODULES_NAME = abstractproperty()  # 映射 modules 文件夹地址
+    NOTEBOOK_PATH = abstractproperty()  # notebook 保存路径
+    NOTEBOOK_URL = abstractproperty()  # notebook URl地址
+    HIVE_IS_HAVE_DBS = abstractproperty()  # hive查询表时是否包含表名
     IF_AUTH = abstractproperty()  # 是否开启用户验证
     AUTH_WHITE_LIST = abstractproperty()  # 无需认证的URL
     ELASTIC_SEARCH_API_URL = abstractproperty()  # ES API地址

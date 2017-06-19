@@ -5,7 +5,7 @@ reload(sys)
 sys.setdefaultencoding('utf8')
 from common.utils import _req_url_body
 from common import mysql_base
-from conf.default import _notebook_url
+from conf.default import NOTEBOOK_URL
 
 '''init notebook default params '''
 def init_notebook(name,first=[],code=""):
@@ -32,18 +32,18 @@ def init_notebook(name,first=[],code=""):
         tmp['source'] = item
         cells.append(tmp)
     data_jsons['content']['cells'] = cells
-    url = "{}/api/contents/{}".format(_notebook_url,name)
+    url = "{}/api/contents/{}".format(NOTEBOOK_URL,name)
     try:
         result = _req_url_body(url,data_jsons,True)
         result = json.loads(result)
         if result['writable']:
-            return "{}/notebooks/{}".format(_notebook_url,name)
+            return "{}/notebooks/{}".format(NOTEBOOK_URL,name)
     except Exception, e:
         return False
 
 '''create a new notebook'''
 def new_notebook():
-    url = "{}/api/contents".format(_notebook_url)
+    url = "{}/api/contents".format(NOTEBOOK_URL)
     data = {"type":"notebook"}
     try:
         result = _req_url_body(url,data)

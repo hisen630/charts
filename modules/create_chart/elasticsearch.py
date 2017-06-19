@@ -161,19 +161,18 @@ def trans(data):
 
     def get_aggs(self):
         self.ai += 1
-        field_name, type = self.columns.pop(0).split("__")
-
-        if type not in self._types_json:
+        column = self.columns.pop(0).split("__")
+        if column[1] in self._types_json:
+            tmp = {column[1]: dict(self._types_json[column[1]]), "aggs": {}}
+            tmp[column[1]]['field'] = column[0]
+            self.filed_rela[self.ai] = column[0]
+        else:
             return {}
-
-        tmp = {type: self._types_json[type], "aggs": {}}
-        tmp[type]['field'] = field_name
-        self.filed_rela[self.ai] = field_name
-
         if len(self.columns) > 0:
-            tmp['aggs'] = aggs = self.get_aggs()
-            if not aggs:
+            tmp['aggs'] = self.get_aggs()
+            if not tmp['aggs']:
                 return {}
+            tmp['aggs'] = dict(tmp['aggs'], **self.aggs_value)
         else:
             tmp['aggs'] = self.aggs_value
         return {self.ai: tmp}
@@ -183,4 +182,4 @@ class Manager():
     types = 3
 
     def preview(self, row, oper):
-        ElasticSearch().get_data()
+        ElasticSearchRTC().get_data()

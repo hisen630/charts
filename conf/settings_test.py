@@ -24,7 +24,7 @@ class Config(ConfigBase):
     elastic_search_api = "http://127.0.0.1:9999/{}/{}/_search"
     MYSQL_CONFIG_FILE = "/Users/luoruiqing/work/charts/hillinsight/storage/mysql.conf"
     LOG_LEVEL = DEBUG
-
+    ELASTIC_SEARCH_API_URL = "http://127.0.0.1:9999/{}/{}/_search"
 
 if __name__ == '__main__':
     Config()

@@ -1,5 +1,5 @@
 # coding:utf-8
-debug = True  # TODO 这里要注意更改状态 每次上线保证状态为Flase
+debug = False  # TODO 这里要注意更改状态 每次上线保证状态为Flase
 if debug:
     from settings_test import Config
 else:

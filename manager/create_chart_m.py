@@ -1,5 +1,6 @@
 # coding:utf-8
 """  创建图表 """
+from __base__ import APIError
 from json import loads
 from modules.create_chart.mysql import Manager
 from field_m import FieldManager
@@ -19,39 +20,19 @@ class CreateChartManager:
                 return objects[item]
         raise NotImplemented("未实现的映射方法")
 
-    def get_sql(self):
-        pass
-
     @classmethod
-    def preview(cls, field_id, column_name, oper_id, types=3):
+    def preview(cls, **kwargs):
         """ 预览界面 """
-        row = FieldManager.get_by_id(field_id)
-
-        if not row:
-            return {"status": 0, "msg": "数据不存在"}
-        row["columns"] = columns = (filter(lambda item: item.get("field") == column_name,
-                                           loads(row.get("columns", "{}"))) or ({},))[0]
-        if not columns:
-            return {"status": 0, "msg": "数据库存在，但该数据列不存在，请在常用设置内添加字段"}
-        oper = OperManager.get_by_id(oper_id)
-        if not oper:
-            return {"status": 0, "msg": "该操作符记录不存在"}
-        model = cls.get_model(types)
-        model.preview(row, oper)
-        return row
-
-    @staticmethod
-    def save(field_id, column_name, oper_id):
-        row = FieldManager.get_by_id(field_id)
-
-        if not row:
-            return {"status": 0, "msg": "数据不存在"}
-        row["columns"] = columns = (filter(lambda item: item.get("field") == column_name,
-                                           loads(row.get("columns", "{}"))) or ({},))[0]
-        if not columns:
-            return {"status": 0, "msg": "数据库存在，但该数据列不存在，请在常用设置内添加字段"}
-        oper = OperManager.get_by_id(oper_id)
-        if not oper:
-            return {"status": 0, "msg": "该操作符记录不存在"}
-
-        return row
+        source_info = FieldManager.get_by_id(kwargs["field_id"])
+        if not source_info:
+            raise APIError("数据不存在.")
+        fields = loads(source_info.get("columns", "{}"))
+        for column in kwargs["columns"]:
+            if not (filter(lambda item: item.get("field") == column["name"], fields) or ({},))[0]:
+                raise APIError("该列({})不存在预置数据中.".format(column["name"]))
+        for row in kwargs["rows"]:
+            if not (filter(lambda item: item.get("field") == row["name"], fields) or ({},))[0]:
+                raise APIError("该行({})不存在预置数据中.".format(row["name"]))
+                # 操作符过滤
+        return {}
+        # return cls.get_model(types).preview(row=row, oper=oper, columns=columns, rows=rows, query="*")

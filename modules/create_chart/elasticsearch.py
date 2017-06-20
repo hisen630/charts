@@ -71,7 +71,11 @@ class ElasticSearchRTC(RTC):
                                       "time_zone": "Asia/Shanghai",
                                       "min_doc_count": 1,
                                       "extended_bounds": {"min": 1464834955997, "max": 1496370955997}},
-                   "terms": {"field": "fg_category2_name.raw", "size": 5, "order": {"1": "desc"}}}
+                   "terms": {
+                       "field": "fg_category2_name.raw",
+                       "size": 5,
+                       "order": {"1": "desc"}
+                   }}
     from conf.default import ELASTIC_SEARCH_API_URL as api
     rows = [u'gmv__value', u'view_price__value', u'month_sale__value']
     columns = [u'fg_category2_name.raw__terms', u'fg_category3_name.raw__terms']
@@ -163,11 +167,11 @@ def trans(data):
 
     def get_aggs(self):
         self.ai += 1
-        column = self.columns.pop(0).split("__")
-        if column[1] in self._types_json:
-            tmp = {column[1]: dict(self._types_json[column[1]]), "aggs": {}}
-            tmp[column[1]]['field'] = column[0]
-            self.filed_rela[self.ai] = column[0]
+        column, type = self.columns.pop(0).split("__")
+        if type in self._types_json:
+            tmp = {type: dict(self._types_json[type]), "aggs": {}}
+            tmp[type]['field'] = column
+            self.filed_rela[self.ai] = column
         else:
             return {}
         if len(self.columns) > 0:
@@ -181,7 +185,13 @@ def trans(data):
 
 
 class Manager():
-    types = 3
+    types = 4
 
-    def preview(self, row, oper):
-        ElasticSearchRTC().get_data()
+    def preview(self, row, oper, columns=None, rows=None, query="*"):
+        print row
+        print oper
+
+        return {'status': 1, 'msg': u'获取数据完成.', "data": ElasticSearchRTC().get_data()}
+
+    def save(self):
+        pass

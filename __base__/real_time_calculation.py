@@ -24,15 +24,15 @@ class RealTimeCalculationMapping(RealTimeCalculationMappingBase):
     columns = ()  # 列/指标
     query = "*"  # 查询内容默认为 *
 
-    def __init__(self, index_or_db=index_or_db, type_or_table=type_or_table,
-                 columns=columns, rows=rows, query=query):
+    def __init__(self, index_or_db=None, type_or_table=None,
+                 columns=None, rows=None, query=None):
         """ 优先使用传入参数，否则使用默认参数 """
-        assert index_or_db and type_or_table and query  # 索引、类型和query必须存在
-        self.index_or_db = index_or_db
-        self.type_or_table = type_or_table
-        self.columns = columns
-        self.rows = rows
-        self.query = query
+        self.index_or_db = index_or_db or self.index_or_db
+        self.type_or_table = type_or_table or self.type_or_table
+        self.columns = columns or self.columns
+        self.rows = rows or self.rows
+        self.query = query or self.query
+        assert self.index_or_db and self.type_or_table and self.query  # 索引、类型和query必须存在
 
 
 RTC = RealTimeCalculationMapping

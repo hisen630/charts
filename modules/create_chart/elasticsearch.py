@@ -72,7 +72,10 @@ class ElasticSearchRTC(RTC):
                                       "min_doc_count": 1,
                                       "extended_bounds": {"min": 1464834955997, "max": 1496370955997}},
                    "terms": {"field": "fg_category2_name.raw", "size": 5, "order": {"1": "desc"}}}
-
+    rows = [u'gmv__value', u'view_price__value', u'month_sale__value']
+    columns = [u'fg_category2_name.raw__terms', u'fg_category3_name.raw__terms']
+    index_or_db = "online_taobao_*_*-*-*"
+    type_or_table = "item_list"
     from conf.default import ELASTIC_SEARCH_API_URL as api
 
     def __init__(self, *args, **kwargs):

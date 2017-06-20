@@ -9,21 +9,30 @@ class RealTimeCalculationBase(object):
 
 
 class RealTimeCalculation(RealTimeCalculationBase):
-    """ 实时计算基类 """
+    """ 实时计算类 """
 
 
-class RealTimeCalculationMappingBaseBase(RealTimeCalculation, Mapping):
+class RealTimeCalculationMappingBase(RealTimeCalculation, Mapping):
     """ 实时计算基础方法并对应映射层 """
 
 
-class RealTimeCalculation(RealTimeCalculationMappingBaseBase):
-    def __init__(self, index_or_db="online_taobao_*_*-*-*", type_or_table="item_list",
-                 columns=(), rows=(), query="*"):
+class RealTimeCalculationMapping(RealTimeCalculationMappingBase):
+    """ 实时计算实现类统一接口 """
+    index_or_db = None  # 索引/数据库
+    type_or_table = None  # 类型/表
+    rows = ()  # 行／维度
+    columns = ()  # 列/指标
+    query = "*"  # 查询内容默认为 *
+
+    def __init__(self, index_or_db=index_or_db, type_or_table=type_or_table,
+                 columns=columns, rows=rows, query=query):
+        """ 优先使用传入参数，否则使用默认参数 """
+        assert index_or_db and type_or_table and query  # 索引、类型和query必须存在
         self.index_or_db = index_or_db
         self.type_or_table = type_or_table
-        self.columns = columns or [u'fg_category2_name.raw__terms', u'fg_category3_name.raw__terms']
-        self.rows = rows or [u'gmv__value', u'view_price__value', u'month_sale__value']
+        self.columns = columns
+        self.rows = rows
         self.query = query
 
 
-RTC = RealTimeCalculation
+RTC = RealTimeCalculationMapping

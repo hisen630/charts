@@ -15,7 +15,7 @@ from error import (
     SystemException,
     SystemError,
     ChartsError,
-    NotImplementedManagerError
+    NotImplementedManagerMappingTypeError
 )
 
 from real_time_calculation import (

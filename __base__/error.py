@@ -30,9 +30,9 @@ class ChartsError(SystemError):
         self.code = code or self.code
 
 
-class NotImplementedManagerError(ChartsError):
+class NotImplementedManagerMappingTypeError(ChartsError):
     code = 1001
-    msg = "未实现的映射错误(Manager)."
+    msg = "未实现的映射管理器错误(该类型不支持，请修改Type)."
 
 
 if __name__ == '__main__':

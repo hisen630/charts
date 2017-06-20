@@ -25,7 +25,7 @@ class FieldManager:
                 address = r1(r"@(.*)", address)
             for column in loads(item["columns"]):
                 field_result.setdefault("@".join([address, index]), {}).setdefault(type, {}).setdefault(
-                    column["class"], []).append(dict(column, **{"id": item["id"]}))
+                    column.pop("class"), []).append(dict(column, **{"id": item["id"]}))
         return field_result
 
     @staticmethod

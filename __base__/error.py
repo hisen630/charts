@@ -30,6 +30,11 @@ class ChartsError(SystemError):
         self.code = code or self.code
 
 
+class NotImplementedManagerError(ChartsError):
+    code = 1001
+    msg = "未实现的映射错误(Manager)."
+
+
 if __name__ == '__main__':
 
     def test_error(error_object):

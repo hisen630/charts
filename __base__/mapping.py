@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta, abstractproperty
 
 
@@ -7,10 +8,10 @@ class MappingBase(object):
     __metaclass__ = ABCMeta
 
 
-class Mapping(MappingBase):
+class Mapping(MappingBase, System):
     """ 数据源映射 """
     type = abstractproperty()  # 类型
 
 
-class Mapping1(MappingBase):
+class Mapping1(MappingBase, System):
     types = abstractproperty()  # 类型

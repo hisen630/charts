@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta
 
 
@@ -7,5 +8,5 @@ class LogicBase(object):
     __metaclass__ = ABCMeta
 
 
-class Logic(LogicBase):
+class Logic(LogicBase, System):
     """ 逻辑类 """

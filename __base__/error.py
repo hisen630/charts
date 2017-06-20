@@ -1,5 +1,6 @@
 # coding:utf-8
 from __future__ import unicode_literals
+from __base__ import System
 from abc import ABCMeta, abstractproperty
 
 
@@ -12,7 +13,7 @@ class SystemException(Exception):
     __metaclass__ = ABCMeta
 
 
-class SystemError(SystemException):
+class SystemError(SystemException, System):
     """ 错误类 """
     status = abstractproperty()
     code = abstractproperty()

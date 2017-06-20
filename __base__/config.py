@@ -1,5 +1,5 @@
 # coding:utf-8
-
+from __base__ import System
 from abc import ABCMeta, abstractproperty
 
 
@@ -8,9 +8,8 @@ class ConfigBase(object):
     __metaclass__ = ABCMeta
 
 
-class Config(ConfigBase):
+class Config(ConfigBase, System):
     """ 配置类 """
-    __metaclass__ = ABCMeta
 
 
 class ConfigDefault(Config):

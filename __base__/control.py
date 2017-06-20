@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta
 
 
@@ -7,5 +8,5 @@ class ControlBase(object):
     __metaclass__ = ABCMeta
 
 
-class Control(ControlBase):
+class Control(ControlBase, System):
     """ 控制类 """

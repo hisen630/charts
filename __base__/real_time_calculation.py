@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta
 from mapping import Mapping
 
@@ -8,7 +9,7 @@ class RealTimeCalculationBase(object):
     __metaclass__ = ABCMeta
 
 
-class RealTimeCalculation(RealTimeCalculationBase):
+class RealTimeCalculation(RealTimeCalculationBase, System):
     """ 实时计算类 """
 
 

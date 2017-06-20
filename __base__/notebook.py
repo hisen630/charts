@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta, abstractmethod
 
 
@@ -7,7 +8,7 @@ class NotebookBase(object):
     __metaclass__ = ABCMeta
 
 
-class Notebook(NotebookBase):
+class Notebook(NotebookBase, System):
     """ TASK的 Notebook 抽象类 和 强制方法 """
 
     @abstractmethod

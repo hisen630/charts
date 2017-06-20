@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta
 
 
@@ -7,5 +8,5 @@ class DataBase(object):
     __metaclass__ = ABCMeta
 
 
-class Data(DataBase):
+class Data(DataBase, System):
     """ 数据类 """

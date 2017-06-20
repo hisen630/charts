@@ -1,4 +1,5 @@
 # coding:utf-8
+from __base__ import System
 from abc import ABCMeta, abstractmethod, abstractproperty
 from mapping import Mapping1
 
@@ -8,7 +9,7 @@ class TaskBase(object):
     __metaclass__ = ABCMeta
 
 
-class Task(TaskBase):
+class Task(TaskBase, System):
     """ 任务层 """
 
 

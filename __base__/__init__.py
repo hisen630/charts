@@ -6,16 +6,19 @@ from data import DataBase, Data
 from logic import LogicBase, Logic
 from tools import ToolsBase, Tools
 from control import ControlBase, Control
+from manager import ManagerBase, Manager
 from notebook import NotebookBase, Notebook
 from mapping import MappingBase, Mapping, Mapping1
-from task import TaskBase, Task, TaskMappingBase, TaskMapping
 from config import ConfigBase, Config, ConfigDefault
+from task import TaskBase, Task, TaskMappingBase, TaskMapping
+
 from error import (
     SystemBaseException,
     SystemException,
     SystemError,
     ChartsError,
-    NotImplementedManagerMappingTypeError
+    APIError,
+    NotImplementedManagerMappingTypeError,
 )
 
 from real_time_calculation import (
@@ -25,6 +28,3 @@ from real_time_calculation import (
     RealTimeCalculationMapping,
     RTC
 )
-
-
-

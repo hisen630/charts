@@ -26,14 +26,21 @@ class ChartsError(SystemError):
     code = 0
     msg = "Charts Error."
 
-    def __init__(self, message=msg, code=None, *args):
+    def __init__(self, message=msg, code=None, status=status, *args):
         super(ChartsError, self).__init__(message, *args)
         self.code = code or self.code
+        self.status = status or self.status
 
 
 class NotImplementedManagerMappingTypeError(ChartsError):
     code = 1001
     msg = "未实现的映射管理器错误(该类型不支持，请修改Type)."
+
+
+class APIError(ChartsError):
+    """ 接口逻辑内部的一些错误用整个方法排除 """
+    code = 2001
+    msg = "API 错误."
 
 
 if __name__ == '__main__':

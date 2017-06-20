@@ -1,10 +1,10 @@
 # coding:utf-8
 
-from __base__ import RTC
+from __base__ import RTC, ChartsError
 from json import loads
-from common.utils import _req_url
+from copy import deepcopy
 from pandas import DataFrame
-from common.utils import to_table
+from common.utils import _req_url, to_table
 
 
 class ElasticSearchRTC(RTC):
@@ -72,39 +72,38 @@ class ElasticSearchRTC(RTC):
                                       "min_doc_count": 1,
                                       "extended_bounds": {"min": 1464834955997, "max": 1496370955997}},
                    "terms": {"field": "fg_category2_name.raw", "size": 5, "order": {"1": "desc"}}}
+    from conf.default import ELASTIC_SEARCH_API_URL as api
     rows = [u'gmv__value', u'view_price__value', u'month_sale__value']
     columns = [u'fg_category2_name.raw__terms', u'fg_category3_name.raw__terms']
     index_or_db = "online_taobao_*_*-*-*"
     type_or_table = "item_list"
-    from conf.default import ELASTIC_SEARCH_API_URL as api
+    ai = 0  # es 请求体中使用到的数字Key
 
     def __init__(self, *args, **kwargs):
         super(ElasticSearchRTC, self).__init__(*args, **kwargs)
         if not self.columns and self.rows:
-            raise Exception("请检查rows或columns是否为空")
-        self.request_body = self.default_request_body.copy()
-        self.request_body['query']['filtered']['query']['query_string']['query'] = self.query
+            raise ChartsError("请检查rows或columns是否为空")
+        self.request_body = deepcopy(self.default_request_body)  # 深拷贝 消除引用
         self.url = self.api.format(self.index_or_db, self.type_or_table)
-
-        self.ai = 0
-
         self.aggs_value = {}
         self.filed_rela = {}
         self.rows_increment = []
+
+        self.request_body['query']['filtered']['query']['query_string']['query'] = self.query
         for self.ai, item in enumerate(self.rows, 1):
             field, value = item.split("__")
             if value != "value": break
             key = str(self.ai)
             kv = self.rows_increment.append(key) or self.aggs_value.setdefault(key, {})
             self.filed_rela[key] = field
-            kv['sum'] = {"field": "{}".format(field)}
+            kv['sum'] = {"field": str(field)}
 
         self.request_body['aggs'] = self.get_aggs()
 
     def get_data(self):
         self.response = loads(_req_url(self.url, self.request_body))
         if not self.response or 'aggregations' not in self.response:
-            raise Exception("请求失败")
+            raise ChartsError("请求失败")
         data = self.get_table(self.response['aggregations'])
 
         if len(self.columns) > 1:

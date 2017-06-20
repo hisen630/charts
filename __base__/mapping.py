@@ -13,5 +13,5 @@ class Mapping(MappingBase, System):
     type = abstractproperty()  # 类型
 
 
-class Mapping1(MappingBase, System):
+class Mapping1(MappingBase, System):  # Mapping1 为了兼容老代码
     types = abstractproperty()  # 类型

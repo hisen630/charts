@@ -10,7 +10,7 @@ from notebook import NotebookBase, Notebook
 from mapping import MappingBase, Mapping, Mapping1
 from task import TaskBase, Task, TaskMappingBase, TaskMapping
 from config import ConfigBase, Config, ConfigDefault
-from error import SystemBaseExceptionBase, SystemExceptionBase, ChartsException
+from error import SystemBaseException, SystemException, SystemError, ChartsError
 
 from real_time_calculation import (
     RealTimeCalculationBase,

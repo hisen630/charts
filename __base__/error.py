@@ -1,38 +1,51 @@
 # coding:utf-8
 from __future__ import unicode_literals
-from abc import ABCMeta
+from abc import ABCMeta, abstractproperty
 
 
-class SystemBaseExceptionBase(BaseException):
-    """ Charts 错误基类 """
+class SystemBaseException(BaseException):
+    """ BaseException 错误基类 """
 
 
-class SystemExceptionBase(Exception):
-    """ 错误类 """
+class SystemException(Exception):
+    """ Exception 错误基类 """
     __metaclass__ = ABCMeta
 
 
-class ChartsException(SystemExceptionBase):
+class SystemError(SystemException):
+    """ 错误类 """
+    status = abstractproperty()
+    code = abstractproperty()
+    msg = None
+
+
+class ChartsError(SystemError):
     """ 错误实现类 """
     status = False
     code = 0
     msg = "Charts Error."
 
+    def __init__(self, message=msg, code=None, *args):
+        super(ChartsError, self).__init__(message, *args)
+        self.code = code or self.code
+
 
 if __name__ == '__main__':
-    class ChartsRequestParamsError(ChartsException):
+
+    def test_error(error_object):
+        try:
+            raise error_object
+        except ChartsError, e:
+            print e.status, e.code, e.message
+
+
+    class ChartsRequestParamsError(ChartsError):
         """ 请求参数错误 """
         code = 400
 
 
-    try:
-        raise ChartsRequestParamsError("这里是错误提示")
-    except ChartsException, e:
-        print e.message, e.code, e.status
+    TEST_ERROR = ChartsError("测试错误", 200)
 
-    TEST_ERROR = ChartsException("测试错误")
-
-    try:
-        raise TEST_ERROR
-    except ChartsException, e:
-        print e.message, e.code, e.status
+    test_error(ChartsRequestParamsError("这里是错误提示"))
+    test_error(TEST_ERROR)
+    test_error(ChartsError())

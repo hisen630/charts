@@ -11,4 +11,4 @@ class FieldBase:
         if where:
             where = "WHERE {};".format(where)
 
-        return _metric_meta_db.query("SELECT * FROM `t_chart_fields` {};".format(where)) or []
+        return _metric_meta_db.query("SELECT * FROM `t_chart_source` {};".format(where)) or []

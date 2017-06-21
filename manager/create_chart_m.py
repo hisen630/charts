@@ -3,7 +3,7 @@
 from __base__ import APIError
 from json import loads
 from modules.create_chart.mysql import Manager
-from field_m import FieldManager
+from source_m import SourceManager
 from common.base import get_module_object
 from manager.oper_m import OperManager
 
@@ -23,7 +23,7 @@ class CreateChartManager:
     @classmethod
     def preview(cls, **kwargs):
         """ 预览界面 """
-        source_info = FieldManager.get_by_id(kwargs["field_id"])
+        source_info = SourceManager.get_by_id(kwargs["field_id"])
         if not source_info:
             raise APIError("数据不存在.")
         fields = loads(source_info.get("columns", "{}"))
@@ -34,5 +34,6 @@ class CreateChartManager:
             if not (filter(lambda item: item.get("field") == row["name"], fields) or ({},))[0]:
                 raise APIError("该行({})不存在预置数据中.".format(row["name"]))
                 # 操作符过滤
+        print source_info["address"]
         return {}
-        # return cls.get_model(types).preview(row=row, oper=oper, columns=columns, rows=rows, query="*")
+        # return cls.get_model(kwargs.pop("type", 4)).preview(**kwargs)

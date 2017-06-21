@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 from re import search
-from base.field_b import FieldBase
+from base.source_b import SourceBase
 from json import loads
 
 
@@ -10,11 +10,11 @@ def r1(pattern, string):
         return result.group(1)
 
 
-class FieldManager:
+class SourceManager:
     @staticmethod
     def get_data(ids=()):
         field_result = {}
-        for item in FieldBase.get_data_by_ids(ids):
+        for item in SourceBase.get_data_by_ids(ids):
             if item.get("status", 0) == 0:
                 continue
             address = item.pop("address")
@@ -30,4 +30,4 @@ class FieldManager:
 
     @staticmethod
     def get_by_id(id):
-        return (FieldBase.get_data_by_ids(id) or [{}, ])[0]
+        return (SourceBase.get_data_by_ids(id) or [{}, ])[0]

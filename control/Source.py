@@ -2,10 +2,10 @@
 from flask import request
 from route import CustomView
 from common.base import jsonify
-from manager.field_m import FieldManager
+from manager.source_m import SourceManager
 
 
-class Field(CustomView):
+class Source(CustomView):
     # 列表页
     def index(self):
         pass
@@ -29,4 +29,4 @@ class Field(CustomView):
     def search(self):
         """ 不搜索就是常用 """
         args = dict(request.args.to_dict(), **request.form.to_dict())
-        return jsonify(FieldManager.get_data(args.pop("id", ())))
+        return jsonify(SourceManager.get_data(args.pop("id", ())))

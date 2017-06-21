@@ -2,7 +2,6 @@
 """  创建图表 """
 from __base__ import APIError
 from json import loads
-from modules.create_chart.mysql import Manager
 from source_m import SourceManager
 from common.base import get_module_object
 from manager.oper_m import OperManager
@@ -20,20 +19,24 @@ class CreateChartManager:
                 return objects[item]
         raise NotImplemented("未实现的映射方法")
 
+    filter_one = staticmethod(lambda name, fields: (filter(lambda item: item.get("field") == name, fields) or ({},))[0])
+
     @classmethod
     def preview(cls, **kwargs):
-        """ 预览界面 """
-        source_info = SourceManager.get_by_id(kwargs["field_id"])
+        """ 预览界面 
+            参数检查和字段核对在这里完成
+        """
+        source_info = SourceManager.get_by_id(kwargs.pop("field_id"))
         if not source_info:
             raise APIError("数据不存在.")
         fields = loads(source_info.get("columns", "{}"))
-        for column in kwargs["columns"]:
-            if not (filter(lambda item: item.get("field") == column["name"], fields) or ({},))[0]:
-                raise APIError("该列({})不存在预置数据中.".format(column["name"]))
-        for row in kwargs["rows"]:
-            if not (filter(lambda item: item.get("field") == row["name"], fields) or ({},))[0]:
-                raise APIError("该行({})不存在预置数据中.".format(row["name"]))
+        for items in (kwargs["columns"], kwargs["rows"]):
+            for item in items:
                 # 操作符过滤
-        print source_info["address"]
-        return {}
-        # return cls.get_model(kwargs.pop("type", 4)).preview(**kwargs)
+                hit = cls.filter_one(item["name"], fields)
+                if hit:
+                    item["type"] = hit["type"]
+                raise APIError("该行列({})不存在预置数据中.".format(item["name"]))
+
+        return cls.get_model(source_info.pop("type", kwargs.pop("type"))).preview(  # 默认es
+            **dict(kwargs, **{"address": source_info["address"]}))

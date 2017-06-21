@@ -40,30 +40,30 @@ class ElasticSearchRTC(RTC):
             }
         },
         "aggs": {
-            "1": {
-                "date_histogram": {
-                    "field": "task_date",
-                    "interval": "1M",
-                    "time_zone": "Asia/Shanghai",
-                    "min_doc_count": 1,
-                    "extended_bounds": {
-                        "min": 1464754939521,
-                        "max": 1496290939521
-                    }
-                },
-                "aggs": {
-                    "2": {
-                        "sum": {
-                            "field": "gmv"
-                        }
-                    },
-                    "3": {
-                        "sum": {
-                            "field": "month_sale"
-                        }
-                    }
-                }
-            }
+            #     "1": {
+            #         "date_histogram": {
+            #             "field": "task_date",
+            #             "interval": "1M",
+            #             "time_zone": "Asia/Shanghai",
+            #             "min_doc_count": 1,
+            #             "extended_bounds": {
+            #                 "min": 1464754939521,
+            #                 "max": 1496290939521
+            #             }
+            #         },
+            #         "aggs": {
+            #             "2": {
+            #                 "sum": {
+            #                     "field": "gmv"
+            #                 }
+            #             },
+            #             "3": {
+            #                 "sum": {
+            #                     "field": "month_sale"
+            #                 }
+            #             }
+            #         }
+            #     }
         }
     }
     _types_json = {"date_histogram": {"field": "task_date",
@@ -76,36 +76,34 @@ class ElasticSearchRTC(RTC):
                        "size": 5,
                        "order": {"1": "desc"}
                    }}
-    from conf.default import ELASTIC_SEARCH_API_URL as api
-    rows = [u'gmv__value', u'view_price__value', u'month_sale__value']
-    columns = [u'fg_category2_name.raw__terms', u'fg_category3_name.raw__terms']
-    index_or_db = "online_taobao_*_*-*-*"
-    type_or_table = "item_list"
+
     ai = 0  # es 请求体中使用到的数字Key
 
     def __init__(self, *args, **kwargs):
+        """
+        维度包含了指标 数据条数和排序规则
+        """
         super(ElasticSearchRTC, self).__init__(*args, **kwargs)
-        if not self.columns and self.rows:
+        if not (self.columns and self.rows):
             raise ChartsError("请检查rows或columns是否为空")
+
         self.request_body = deepcopy(self.default_request_body)  # 深拷贝 消除引用
-        self.url = self.api.format(self.index_or_db, self.type_or_table)
         self.aggs_value = {}
         self.filed_rela = {}
         self.rows_increment = []
 
-        self.request_body['query']['filtered']['query']['query_string']['query'] = self.query
-        for self.ai, item in enumerate(self.rows, 1):
-            field, value = item.split("__")
-            if value != "value": break
+        self.request_body['query']['filtered']['query']['query_string']['query'] = self.query  # 设置Query
+        for self.ai, row in enumerate(self.rows, 1):
             key = str(self.ai)
             kv = self.rows_increment.append(key) or self.aggs_value.setdefault(key, {})
-            self.filed_rela[key] = field
-            kv['sum'] = {"field": str(field)}
+            self.filed_rela[key] = row
+            kv['sum'] = {"field": str(row)}
 
-        self.request_body['aggs'] = self.get_aggs()
+        self.request_body['aggs'] = self.get_aggs()  # 设置查询参数
+        print self.request_body['aggs']
 
     def get_data(self):
-        self.response = loads(_req_url(self.url, self.request_body))
+        self.response = loads(_req_url(self.address, self.request_body))
         if not self.response or 'aggregations' not in self.response:
             raise ChartsError("请求失败")
         data = self.get_table(self.response['aggregations'])
@@ -113,7 +111,7 @@ class ElasticSearchRTC(RTC):
         if len(self.columns) > 1:
             data = self.trans(data)
         else:
-            heads = [item.split("__")[0] for item in self.columns] + [item.split("__")[0] for item in self.rows]
+            heads = [item.split("__")[0] for item in self.columns] + self.rows
             data.insert(0, heads)
         return data
 
@@ -121,8 +119,8 @@ class ElasticSearchRTC(RTC):
         heads = []
         for item in self.columns:
             heads.append(item.split("__")[0])
-        for item in self.rows:
-            heads.append(item.split("__")[0])
+        for row in self.rows:
+            heads.append(row)
         code = r'''
 def trans(data):
     result = data.groupby(['{}'])
@@ -187,11 +185,10 @@ def trans(data):
 class Manager():
     types = 4
 
-    def preview(self, row, oper, columns=None, rows=None, query="*"):
-        print row
-        print oper
-
-        return {'status': 1, 'msg': u'获取数据完成.', "data": ElasticSearchRTC().get_data()}
-
-    def save(self):
-        pass
+    def preview(self, address, rows=(), columns=(), query="*"):
+        rows = [row["name"] for row in rows]
+        columns = ["{}__{}".format(column["name"], column["type"]) for column in columns]
+        return {
+            'status': 1, 'msg': u'获取数据完成.',
+            "data": ElasticSearchRTC(address=address, columns=columns, rows=rows, query=query).get_data()
+        }

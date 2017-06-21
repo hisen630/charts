@@ -12,17 +12,22 @@ def r1(pattern, string):
 
 class SourceManager:
     @staticmethod
-    def get_data(ids=()):
+    def parse_address(address_string):
+        agreement, args = address_string.split("://", 1)
+        if "mysql" in agreement:
+            args += "/"
+        address, index, type, id = args.split("/")  # 索引 类型 id（mysql hive不支持）
+        if "@" in address:
+            address = r1(r"@(.*)", address)
+        return agreement, address, index, type, id
+
+    @classmethod
+    def get_data(cls, ids=()):
         field_result = {}
         for item in SourceBase.get_data_by_ids(ids):
             if item.get("status", 0) == 0:
                 continue
-            address = item.pop("address")
-            if item["type"] == 0:
-                address += "/"
-            address, index, type, id = address.split("://", 1)[1].split("/")  # 索引 类型 id（mysql hive不支持）
-            if "@" in address:
-                address = r1(r"@(.*)", address)
+            _, address, index, type, _ = cls.parse_address(item.pop("address"))
             for column in loads(item["columns"]):
                 field_result.setdefault("@".join([address, index]), {}).setdefault(type, {}).setdefault(
                     column.pop("class"), []).append(dict(column, **{"id": item["id"]}))

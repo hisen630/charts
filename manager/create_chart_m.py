@@ -19,8 +19,6 @@ class CreateChartManager:
                 return objects[item]
         raise NotImplemented("未实现的映射方法")
 
-    filter_one = staticmethod(lambda name, fields: (filter(lambda item: item.get("field") == name, fields) or ({},))[0])
-
     @classmethod
     def preview(cls, **kwargs):
         """ 预览界面 
@@ -29,14 +27,10 @@ class CreateChartManager:
         source_info = SourceManager.get_by_id(kwargs.pop("field_id"))
         if not source_info:
             raise APIError("数据不存在.")
-        fields = loads(source_info.get("columns", "{}"))
-        for items in (kwargs["columns"], kwargs["rows"]):
-            for item in items:
-                # 操作符过滤
-                hit = cls.filter_one(item["name"], fields)
-                if hit:
-                    item["type"] = hit["type"]
-                raise APIError("该行列({})不存在预置数据中.".format(item["name"]))
+        req_fields = dict((item["name"], item) for item in kwargs["columns"] + kwargs["rows"])
+        for field in loads(source_info.get("columns")) or []:
+            req_fields.get(field["field"], {})["type"] = field["type"]
+        # raise APIError("该行列({})不存在预置数据中.".format(item["name"]))
 
         return cls.get_model(source_info.pop("type", kwargs.pop("type"))).preview(  # 默认es
             **dict(kwargs, **{"address": source_info["address"]}))

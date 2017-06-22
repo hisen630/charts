@@ -11,8 +11,7 @@ from notebook import NotebookBase, Notebook
 from mapping import MappingBase, Mapping, Mapping1
 from config import ConfigBase, Config, ConfigDefault
 from task import TaskBase, Task, TaskMappingBase, TaskMapping
-from elastic_search import ElasticSearchBase, ElasticSearch, ElasticSearchRequest, ElasticSearchAggs, \
-    ElasticSearchFiltered, ElasticSearchQuery
+from elastic_search import ElasticSearchBase, ElasticSearch, ElasticSearchRequestBase, ElasticSearchRequest
 
 from error import (
     SystemBaseException,

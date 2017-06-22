@@ -12,17 +12,18 @@ class ElasticSearch(ElasticSearchBase, System):
     """ 映射层实现类 """
 
 
-class ElasticSearchRequest(ElasticSearch):
+class ElasticSearchRequestBase(ElasticSearch):
     """ 请求对象 """
 
 
-class ElasticSearchQuery(ElasticSearchRequest):
-    """ Query对象 """
+class ElasticSearchRequest(ElasticSearch):
+    """ 请求对象 """
 
+    class ElasticSearchQuery(ElasticSearchRequestBase):
+        """ Query对象 """
 
-class ElasticSearchFiltered(ElasticSearchRequest):
-    """ Filter 对象 """
+    class ElasticSearchFiltered(ElasticSearchRequestBase):
+        """ Filter 对象 """
 
-
-class ElasticSearchAggs(ElasticSearchRequest):
-    """ Aggs对象 """
+    class ElasticSearchAggs(ElasticSearchRequestBase):
+        """ Aggs对象 """

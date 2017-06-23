@@ -163,7 +163,6 @@
 				    }
 				}
 
-
 			var filter = {
 				"0": {"number": {">=": 1, "==": 3, "<=": 2, "!=": 4, "<": 6, ">": 5}, "string": {"%{}%": 10, "{}%": 12, "{}*": 13, "*{}": 14, "*{}*": 15, "%{}": 11}},
 				"2": {"number": {">=": 1, "==": 3, "<=": 2, "!=": 4, "<": 6, ">": 5}, "string": {"%{}%": 10, "{}%": 12, "{}*": 13, "*{}": 14, "*{}*": 15, "%{}": 11}},
@@ -171,7 +170,36 @@
 				"4": {"number": {">=": 1, "==": 3, "<=": 2, "!=": 4, "<": 6, ">": 5}, "string": {"%{}%": 10, "{}%": 12, "{}*": 13, "*{}": 14, "*{}*": 15, "%{}": 11}}
 				}		
 
-
+			var sum = {
+					"0":[
+						{
+						name: "sum",
+						label: "求和"
+						},
+						{
+						name: "max",
+						label: "求最大"
+						},
+						{
+						name: "min",
+						label: "求最小"
+						}
+						],
+					"4": [
+						{
+						name: "sum",
+						label: "求和"
+						},
+						{
+						name: "max",
+						label: "求最大"
+						},
+						{
+						name: "min",
+						label: "求最小"
+						}
+					]	
+				}
     		
     		var dbArr = [],tbArr = [],sdb='',i=0
     		for (item in dataArr){
@@ -223,24 +251,45 @@
 				$('#dimension').html(demoDimension)
 
 
-				var eleDustbin = $(".dustbin")[0], 
-					eleDropzone = $(".dropzone")[0], 
+				var fliterzone = $(".fliterzone")[0], 
+					sumzone = $(".sumzone")[0], 
+					columnszone = $(".columnszone")[0],
+					rowszone = $('.rowszone')[0],
+
 					eleDrags = $(".draglist"), 
 					lDrags = eleDrags.length,  
-					eleDrag = null, 
-					eleobj = {};
-					eve =null;
-					evearr =[];
 
+					eleDrag = null, //filter数据
+					evesum =null, // sum数据
+
+					ifsum =false,
+					ifrows = false,
+					ifcolumns = false;
+
+				//拖动左侧列表	
 				for (var i=0; i<lDrags; i+=1) {
 					eleDrags[i].onselectstart = function() {
 						return false;
 					};
 					eleDrags[i].ondragstart = function(ev) {
+						var eleobj = {}//list数据
 						eleobj.text = ev.target.innerText
 						eleobj.source = ev.target.dataset.source
 						eleobj.type = ev.target.dataset.type
+						eleobj.id = ev.target.dataset.id
+						eleobj.field = ev.target.dataset.field
 
+						if (eleobj.type == 'number') {
+							ifsum = true
+						} else{
+							ifsum = false
+						};
+
+						if (eleobj.type) {
+							ifcolumns = true
+						} else{
+							ifcolumns = false
+						};
 
 						ev.dataTransfer.effectAllowed = "move";
 						ev.dataTransfer.setData("text", eleobj);
@@ -252,31 +301,33 @@
 						ev.dataTransfer.clearData("text");
 						this.style.borderColor = "#ccc";
 						eleDrag = null;
+						ifsum = false;
+						ifcolumns =false;
 						return false
 					};
 				}
 
-
-				eleDustbin.ondragover = function(ev) {
+				//拖入filter
+				fliterzone.ondragover = function(ev) {
 					this.style.borderColor = "#56a95b";
 					ev.preventDefault();
 					return true;
 				};
 
-				eleDustbin.ondragenter = function(ev) {
+				fliterzone.ondragenter = function(ev) {
 					this.style.borderColor = "#56a95b";
 					return true;
 				};
-				eleDustbin.ondragleave = function(ev) {
+				fliterzone.ondragleave = function(ev) {
 					this.style.borderColor = "#ccc";
 					return true;
 				}
-				eleDustbin.ondrop = function(ev) {
+				fliterzone.ondrop = function(ev) {
 					$(this).css({
-						border: '1px dashed #ccc',
-						cursor:'move'
+						border: '1px solid #ccc',
+						// cursor:'move'
 					});
-					$(this).attr('draggable', 'true');
+					// $(this).attr('draggable', 'true');
 
 					var source_obj = {}
 					for (source_type in filter) {
@@ -292,10 +343,8 @@
 
 					if (eleDrag.type == 'date') {
 						var demol = "<div class='pdt10 ftitle col-md-2'>"+eleDrag.text+"</div>"+
-									"<div class='col-md-6'>"+
 										"<input class='query' type='"+eleDrag.type+"' />"+
-										"<input class='query' type='"+eleDrag.type+"' />"+
-									"</div>" 
+										"<input class='query' type='"+eleDrag.type+"' />"
 					} else{
 						var demol = "<div class='pdt10 ftitle col-md-2'>"+eleDrag.text+"</div>"+
 									"<div class='fq' id='c03-select'></div>"+
@@ -305,7 +354,7 @@
 					};
 
 					
-					$('.dustbin').html(demol)
+					$('.fliterzone').html(demol)
 
 					var querySelect = []
 					for (items in type_obj){
@@ -321,77 +370,119 @@
 					return false;
 				};
 
+				
 
-
-
-
-				eleDustbin.onselectstart = function() {
-						return false;
-					};
-				eleDustbin.ondragstart = function(ev) {
-					console.log($('.ftitle').text())
-					ev.dataTransfer.effectAllowed = "move";
-					ev.dataTransfer.setData("text", $('.ftitle').text());
-					ev.dataTransfer.setDragImage(ev.target, 0, 0);
-					eve = $('.ftitle').text()
+				//拖入sum
+				sumzone.ondragover = function(ev) {
+					ev.preventDefault();
+					if (ifsum) {
+						this.style.borderColor = "#56a95b";
+					} 
 					return true;
 				};
-				eleDustbin.ondragend = function(ev) {
+
+				sumzone.ondragenter = function(ev) {
+					if (ifsum) {
+						this.style.borderColor = "#56a95b";
+					} 
+					return true;
+				};
+				sumzone.ondragleave = function(ev) {
+					this.style.borderColor = "#ccc";
+					return true;
+				}
+				sumzone.ondrop = function(ev) {
+
+					if (ifsum) {
+						$(this).css({
+							border: '1px dashed #ccc',
+							cursor:'move'
+						});
+						$(this).attr('draggable', 'true');
+						var sumdemo = "<div class='pdt10 ftitle col-md-2'>"+eleDrag.text+"</div><div class='fq' id='c04-select'></div>"
+					
+						$('.sumzone').html(sumdemo)
+
+						var sum_arr = []
+						for (sum_type in sum) {
+							sum_arr = sum[eleDrag.source]
+						}
+
+						var sumSelect = []
+						for (var i = 0; i < sum_arr.length; i++) {
+							sumSelect.push({'id':sum_arr[i].name,'text':sum_arr[i].label})
+						};
+
+						console.log(sumSelect)
+						$("#c04-select").select2({
+							data: sumSelect,
+						 	placeholder:'sum',
+			  				allowClear:true,
+						})
+					} 
+					return false;
+				};
+
+
+				//拖动sum
+				sumzone.onselectstart = function() {
+					return false;
+				};
+				sumzone.ondragstart = function(ev) {
+					ifrows = true;
+					ifcolumns = false
+					var sum_ojb = {}
+					sum_ojb.sumname = $(this).find('.ftitle').text()+'-'+$(this).find('.select2-chosen').text()
+					sum_ojb.sumval = $("#c04-select").find("option:selected").val()
+					
+					console.log(sum_ojb)
+
+					ev.dataTransfer.effectAllowed = "move";
+					ev.dataTransfer.setData("text", sum_ojb);
+					ev.dataTransfer.setDragImage(ev.target, 0, 0);
+					evesum = sum_ojb
+					return true;
+				};
+				sumzone.ondragend = function(ev) {
 					ev.dataTransfer.clearData("text");
 					this.style.borderColor = "#ccc";
 					// evearr.remove(eve)
-					eve = null;
+					evesum = null;
+					ifrows = false;
 					return false
 				};
 
-				var eleEndbox = $('.endbox')[0]
 
-
-				eleEndbox.ondragover = function(ev) {
-					if (eve == $('.ftitle').text()) {
+				//拖入rows
+				rowszone.ondragover = function(ev) {
+					if (ifrows) {
 						this.style.borderColor = "#56a95b";
 					}
-
 					ev.preventDefault();
 					return true;
 				};
 
-				eleEndbox.ondragenter = function(ev) {
-					
-					if (eve == $('.ftitle').text()) {
+				rowszone.ondragenter = function(ev) {
+					if (ifrows) {
 						this.style.borderColor = "#56a95b";
 					}
 					return true;
 				};
-				eleEndbox.ondragleave = function(ev) {
+				rowszone.ondragleave = function(ev) {
 					this.style.borderColor = "#ccc";
 					return true;
 				}
-				eleEndbox.ondrop = function(ev) {
-					// console.log(eve)
-					if (eve == $('.ftitle').text()) {
+				rowszone.ondrop = function(ev) {
+					if (ifrows) {
 						this.style.borderColor = "#ccc";
-						evearr.push(eve)
-						// console.log(evearr)
-						evearr = evearr.unique()
-						console.log(evearr)
-						var ddemo = ''
-						for (var i = 0; i < evearr.length; i++) {
-							ddemo+='<div class="itemlist">'+evearr[i]+'</div>'
 							
-						};
-						$('.endbox').html(ddemo)
+						$('.rowszone').html('<div class="itemlist">'+evesum.sumname+'</div>')
 
-						$('.endbox').on('click', '.itemlist', function(event) {
+						$('.rowszone').on('click', '.itemlist', function(event) {
 							event.preventDefault();
-							var iarr = $(this).text()
-							evearr.remove(iarr)
-							$(this).remove()
-							if (evearr.length<=0) {
-								$('.endbox').html('<div class="filter">拖入filter</div>')
-							} else{
+							evesum = null
+							$('.rowszone').html('<div class="cr">rows</div>')
 
-							};
 						});
 						return false;
 					} else{
@@ -399,37 +490,47 @@
 						this.style.borderColor = "#ccc";
 						return false;
 					};
-					
-
-					
+		
 				};
 
 
-
-
-
-				eleDropzone.ondragover = function(ev) {
-					this.style.borderColor = "#56a95b";
+				//拖入colnums
+				columnszone.ondragover = function(ev) {
+					if (ifcolumns) {
+						this.style.borderColor = "#56a95b";
+					}
 					ev.preventDefault();
 					return true;
 				};
 
-				eleDropzone.ondragenter = function(ev) {
-					this.style.borderColor = "#56a95b";
+				columnszone.ondragenter = function(ev) {
+					if (ifcolumns) {
+						this.style.borderColor = "#56a95b";
+					}
 					return true;
 				};
-				eleDropzone.ondragleave = function(ev) {
+				columnszone.ondragleave = function(ev) {
 					this.style.borderColor = "#ccc";
 					return true;
 				}
-				eleDropzone.ondrop = function(ev) {
-					this.style.borderColor = "#fff";
-					$("#c04-select").select2({
-						data: tbArr,
-					 	placeholder:'选择表',
-		  				allowClear:true,
-					})
-					return false;
+				columnszone.ondrop = function(ev) {
+					if (ifcolumns) {
+						this.style.borderColor = "#ccc";
+						$('.columnszone').html('<div class="itemlist">'+eleDrag.text+'</div>')
+
+						$('.columnszone').on('click', '.itemlist', function(event) {
+							event.preventDefault();
+							eleDrag = null
+							$('.columnszone').html('<div class="cr">columns</div>')
+
+						});
+						return false;
+					} else{
+						console.log(11)
+						this.style.borderColor = "#ccc";
+						return false;
+					};
+		
 				};
 
 			});
@@ -447,6 +548,23 @@
 {% endblock %}
 {% block content %}
 <style type="text/css">
+
+	::-webkit-input-placeholder { /* WebKit browsers */ 
+	color: #ccc; 
+	text-align: center;
+	} 
+	:-moz-placeholder { /* Mozilla Firefox 4 to 18 */ 
+	color: #ccc;
+	text-align: center; 
+	} 
+	::-moz-placeholder { /* Mozilla Firefox 19+ */ 
+	color: #ccc; 
+	text-align: center;
+	} 
+	:-ms-input-placeholder { /* Internet Explorer 10+ */ 
+	color: #ccc; 
+	text-align: center;
+	} 
 	.pdt10{
 		padding-top: 6px;
 	}
@@ -480,6 +598,24 @@
 	    /*height: 36px;*/
 	    /*line-height: 36px;*/
 	}
+	.querydiv{
+		color: #666;
+		padding:0 5px;
+	    margin-bottom: 3px;
+	    border: 1px solid #ccc;
+	    font-size: 12px;
+	    height: auto; 
+	    overflow: hidden;
+	    height: 34px; 
+	    line-height: 34px; 
+	    text-align: center;
+	}
+	.querydiv input{
+		border: none;
+		width: 100%;
+		outline: none
+	}
+
 	.filter{
 		text-align: center;
 		color: #ccc;
@@ -504,6 +640,12 @@
 		border: 1px solid #ccc;
 		box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075);
 	}
+	.qu{
+		color: #666;
+		height: 35px;
+		margin-bottom: 3px;
+		border: 1px solid #ccc;
+	}
 	.sum{
 		margin-left: 10px;
 		width: 200px;
@@ -526,11 +668,39 @@
 	.itemlist{
 		text-align: center;
 		color: #999;
-		padding: 3px 8px;
-		margin-left: 5px;
+		height: 24px;
+		line-height: 24px;
+		padding: 0 5px;
+		margin: 4px;
 		float: left;
-		border: 1px solid #ccc;
+		background-color: #bbb;
+		color: #fff;
+		border-radius: 2px;
+		/*border: 1px solid #999;*/
+		cursor: pointer;
 	}
+
+	.endbox{
+		color: #666;
+		padding:0 5px;
+	    margin-bottom: 3px;
+	    border: 1px solid #ccc;
+	    font-size: 12px;
+	    height: auto; 
+	    overflow: hidden;
+	    height: 34px; 
+	    line-height: 34px; 
+	    text-align: center;
+	}
+	.cr{
+		color: #ccc
+	}
+
+	.itemlist:after{
+		content: 'X';
+		color: #666;
+		padding: 2px;
+	};
 
 	
 </style>
@@ -538,29 +708,35 @@
 	<div class="col-md-4">
         <div id="c01-select"></div>
         <div id="c02-select"></div>
-        <h5 class="text-center" id=''>维度</h5>
-        <div id="index" class='dragbox'>
+	    <h5 class="text-center" id=''>维度</h5>
+	    <div id="dimension">
 	    </div>
 	    <h5 class="text-center" id=''>指标</h5>
-	    <div id="dimension">
+        <div id="index" class='dragbox'>
 	    </div>
 
 	</div>
 	<div class="col-md-8">
 		<div class="col-md-12">
-			<div class='dustbin drapbox col-md-12' draggable="false">
-				<div class='filter'>拖入表</div>
-			</div>
-			<div class='col-md-12'>
-				<input class='query w200' placeholder='query' />
-				<div id='c04-select' class='sum dropzone' placeholder='sum' >sum</div>
+			
+			<div class='col-md-12 querydiv' draggable="false">
+				<input class='' type='text' placeholder='query' />
 			</div>
 
+			<div class='fliterzone drapbox col-md-12' draggable="false">
+				<div class='filter'>filter</div>
+			</div>
+			<div class='sumzone drapbox col-md-12' draggable="false">
+				<div class='filter'>sum</div>
+			</div>
 		</div>
 
 		<div class="col-md-12">
-			<div class='endbox drapbox col-md-12'>
-				<div class='filter'>拖入filter</div>
+			<div class='columnszone endbox col-md-12'>
+				<div class='cr'>columns</div>
+			</div>
+			<div class='rowszone endbox col-md-12'>
+				<div class='cr'>rows</div>
 			</div>
 
 		</div>

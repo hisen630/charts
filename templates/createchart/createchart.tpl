@@ -55,6 +55,13 @@
         }
         return old_object
     }
+    function clearObject(object) {
+        // 如果 val 被忽略
+        for (var item in object) {
+            delete object[item];
+        }
+        return object
+    }
     log = console.log;
     </script>
     <script>
@@ -69,30 +76,11 @@
         function indexDimensionReset(dom1, dom2) { // 重置 维度和指标
             index.empty();
             dimension.empty();
-            index.html(dom1);
-            dimension.html(dom2);
+            index.append(dom1);
+            dimension.append(dom2);
 
         }
-        // filters 类型映射基础 ============================================================================================================
-        var commonType = function () {
-            return "<div class='row'>" +
-                "<div class='ftitle col-sm-2'>" + hit_drag.text + "</div>" +
-                "<div class='col-sm-5' id='c03-select'></div>" +
-                "<div class='col-sm-5'><input class='query form-control' placeholder='" + hit_drag.type + "' />" +
-                "</div></div>"
-        };
-        var typesMapping = { // 类型映射
-            "number": commonType,
-            "string": commonType,
-            "date": function (object) {
-                return "<div class='row'>" +
-                    "<div class='ftitle col-sm-3'>" + hit_drag.text + "</div>" +
-                    "<div class='col-sm-4'><input class='form-control' type='date' /></div>" +
-                    "<div class='col-sm-1' ><p>到</p></div>" +
-                    "<div class='col-sm-4'><input class='form-control' type='date' /></div>" +
-                    "</div>"
-            }
-        };
+
 
         // 库表选择 ============================================================================================================
         var hit_tables = [], hit_db, hit_table, selected_db = $("#c01-select"),
@@ -112,7 +100,6 @@
 
 
         selected_db.on("select2-selecting", function (e) {
-            // indexDimensionReset("", "");
             hit_db = (e.object || {}).text || Object.keys(dbs)[0];
             hit_tables.splice(0, hit_tables.length); //  清空数组内容
 
@@ -179,10 +166,45 @@
 
         }
 
-        // filter 指向事件绑定命中拖拉元素  ============================================================================================================
+        // 绑定被拖拉元素  ================================================================================================================
+        // filters 类型映射基础 ============================================================================================================
+        var filterZone = $(".fliterzone .content:eq(0)").clone(true); // 复制全部节点
+
+        var commonType = function () {
+            var numberBox = filterZone.find(".number-box").clone(true);
+            numberBox.find("label:eq(0)").text(hit_drag.text); //  更改标题
+            numberBox.data("name", hit_drag.name);
+            numberBox.find("button:eq(0)").click(function () { //删除
+                numberBox.remove();
+            }); //  更改标题
+            numberBox.find("#c03-select").select2({
+                data: function () {
+                    var filterSelect = [];
+                    for (var item in hit_oper) {
+                        filterSelect.push({id: hit_oper[item], 'text': item})
+                    }
+                    return filterSelect
+                }(),
+                placeholder: '选择操作符',
+                allowClear: true
+            });
+            return numberBox
+        };
+        var typesMapping = { // 类型映射
+            "number": commonType,
+            "string": commonType,
+            "date": function () {
+                var dateBox = filterZone.find(".date-box").clone(true);
+                dateBox.find("label:eq(0)").text(hit_drag.text); //  更改标题
+                dateBox.find("button:eq(0)").click(function () { //删除
+                    dateBox.remove();
+                }); //  更改标题
+                return dateBox
+            }
+        };
+        var hit_oper = {};
         function filterReset(html) { // 重置filter
-            html = html ? html : "<div class='filter'>filter</div>";
-            $(".fliterzone").html(html)
+            $(".fliterzone .content").html(html ? html : "")
         }
         updateObject($(".fliterzone:eq(0)")[0], {
             ondragover: function (ev) {
@@ -200,22 +222,11 @@
             },
             ondrop: function (ev) {
                 if (filters.operations[hit_drag.source]) {
-                    var hit_oper = filters.operations[hit_drag.source][hit_drag.type];
+                    hit_oper = updateObject(clearObject(hit_oper), filters.operations[hit_drag.source][hit_drag.type]);// 清除对象引用 hit_oper
                     $(this).css("border", '1px solid #ccc'); //字典形式
-                    $('.fliterzone').html(typesMapping[hit_drag.type]);
+                    $('.fliterzone .content').append(typesMapping[hit_drag.type]);
+                    {#                    $('.fliterzone').html()  // 清空方法#}
 
-
-                    $("#c03-select").select2({
-                        data: function () {
-                            var filterSelect = [];
-                            for (var item in hit_oper) {
-                                filterSelect.push({id: hit_oper[item], 'text': item})
-                            }
-                            return filterSelect
-                        }(),
-                        placeholder: 'filter',
-                        allowClear: true
-                    });
                 } else {
                     alert("后台源类型与库类型不匹配(soure type），请联系管理员或自行更改配置!")
                 }
@@ -260,7 +271,7 @@
                     this.style.borderColor = "#ccc";
                     var hit = $(selector);
                     if (hit.hasClass(classMapping[hit_drag.class])) {
-                        var tag = $("<div class='itemlist' data-name='" + hit_drag.field + "'> " + hit_drag.text + "<p></p></div>");
+                        var tag = $("<div class='itemlist color-999' data-name='" + hit_drag.field + "'> " + hit_drag.text + "<p></p></div>");
                         hit.find(".cr").append(bingTag(tag));
                         hit.on('click', '.itemlist', function (event) {
                             $(this).remove(); // 清除本身
@@ -287,13 +298,17 @@
 
         // 预览功能 ============================================================================================================
         $(".preview:eq(0)").click(function () {
-            request_params.columns = [], request_params.rows = [];
-            columns.find(".itemlist").each(function () {
-                request_params.columns.push($(this).data("name"));
+            $(".fliterzone .content").children().each(function () {
+                log($(this));
             });
-            rows.find(".itemlist").each(function () {
-                request_params.rows.push($(this).data("name"));
-            });
+            var dataMappings = {"columns": columns, "rows": rows};
+            for (var item in dataMappings) {
+                request_params[item] = [];
+                dataMappings[item].find(".itemlist").each(function () { //TODO 这里有问题
+                    request_params[item].push($(this).data("name"));
+                });
+
+            }
             log(request_params)
         });
 
@@ -326,6 +341,14 @@
             padding: .5em;
             border: 0;
             width: auto
+        }
+
+        .color-666 {
+            color: #666
+        }
+
+        .color-999 {
+            color: #999
         }
 
         ::-webkit-input-placeholder { /* WebKit browsers */
@@ -366,35 +389,12 @@
         }
 
         .drapbox {
-            color: #999;
-            padding: 4px 5px;
-            margin-bottom: 3px;
-            border: 1px solid #ccc;
-            font-size: 12px;
-            height: auto;
-            overflow: hidden;
-            margin-top: 1px;
-            /*cursor: move;*/
-            /*height: 36px;*/
-            /*line-height: 36px;*/
-        }
-
-        .filter {
-            text-align: center;
-            color: #ccc;
-            height: 40px;
-            line-height: 40px;
-        }
-
-        .ftitle {
-            color: #666;
-            font-size: 14px;
-            text-align: center;
+            border-top: 1px solid #ccc;
+            padding: 1% 0 1% 0;
         }
 
         .itemlist {
             text-align: center;
-            color: #999;
             height: 24px;
             line-height: 24px;
             padding: 0 5px;
@@ -408,7 +408,6 @@
         }
 
         .endbox {
-            color: #666;
             padding: 0 5px;
             margin-bottom: 3px;
             border: 1px solid #ccc;
@@ -434,7 +433,7 @@
     </style>
 
     <div class="row">
-        <div class="col-sm-3">
+        <div class=" col-sm-3">
             <div id="c01-select" class="form-control"></div>
             <div id="c02-select" class="form-control"></div>
             <div>
@@ -451,14 +450,41 @@
         </div>
         <div class="col-sm-9">
             <div>
-                <div class='fliterzone drapbox row' draggable="false">
-                    <div class='filter'>filter</div>
-                </div>
+                <fieldset class="row fliterzone">
+                    <legend>过滤</legend>
+                    <div class="content">
+                        <form class="date-box drapbox form-inline" onsubmit="return false;">
+                            <div class="form-group">
+                                <label>标题</label>
+                            </div>
+                            <div class="form-group">
+                                <input type="datetime" class="form-control" placeholder="开始时间">
+                            </div>
+                            <div class="form-group">
+                                <input type="datetime" class="form-control" placeholder="结束时间">
+                            </div>
+                            <button type="button" class="btn-danger btn-xs">x</button>
+                        </form>
+
+
+                        <form class="number-box drapbox form-inline" onsubmit="return false;">
+                            <div class="form-group">
+                                <label>标题</label>
+                            </div>
+                            <div class="form-group" id='c03-select'></div>
+                            <div class="form-group">
+                                <input type="text" class="form-control" placeholder="输入过滤">
+                            </div>
+                            <button class="btn-danger btn-xs">x</button>
+                        </form>
+                    </div>
+                </fieldset>
+
                 <div class="row">
-                    <div class='columnszone endbox'>
+                    <div class='columnszone endbox color-666'>
                         <div class='cr'>columns</div>
                     </div>
-                    <div class='rowszone endbox'>
+                    <div class='rowszone endbox color-666'>
                         <div class='cr'>rows</div>
                     </div>
 

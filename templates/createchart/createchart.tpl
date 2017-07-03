@@ -1,10 +1,195 @@
 {% extends "layouts/nav.tpl" %}
 {% block header %}
     {{ super() }}
+    <link rel="stylesheet" href="/static/plugin/highchart_edit/highcharts-editor.min.css">
+{% endblock %}
+{% block content %}
+    <style type="text/css">
+        body {
+            width: 100%;
+        }
+
+        fieldset {
+            padding: .35em 2em 1em 2em;
+            margin: 0 2px;
+            border: 1px solid silver
+        }
+
+        legend {
+            padding: .5em;
+            border: 0;
+            width: auto
+        }
+
+        .popover {
+            max-width: 1000px;
+            min-width: 300px;
+        }
+
+        .draglist {
+            padding: 4px 5px;
+            margin-bottom: 5px;
+            border: 1px dashed #ccc;
+            cursor: move;
+            font-size: 12px
+        }
+
+        .draglist:hover {
+            border-color: #cad5eb;
+            background-color: #eee;
+        }
+
+        .fliterzone form {
+            border-top: 1px solid #ccc;
+            padding: 1% 0 1% 0;
+        }
+
+        .item {
+            text-align: center;
+            padding: 0 4px 0 10px;
+            margin: 4px;
+            float: left;
+
+        }
+
+        .endbox {
+            margin: 10px 0;
+            padding: 0 5px;
+            border: 1px solid #ccc;
+            overflow: hidden;
+            height: 34px;
+        }
+
+
+    </style>
+
+    <div class="row">
+        <div class="col-sm-3">
+            <label for="c01-select"></label><input name="db" id="c01-select" class="form-control"/>
+            <label for="c02-select"></label><input name="table" id="c02-select" class="form-control"/>
+            <label></label><input id="query" name="query" class='form-control text-center' type='text'
+                                  placeholder='Query(*)'/>
+            <fieldset>
+                <legend>维度</legend>
+                <div id="dimension" class="row"></div>
+            </fieldset>
+            <fieldset>
+                <legend>指标</legend>
+                <div id="index" class='row'></div>
+            </fieldset>
+            {#            <div style="height: 10000px;"></div>#}
+        </div>
+
+        <div class="col-sm-9 col-sm-offset-3" style="position: absolute;">
+            <div style="position: fixed;width: 50%;">
+                <fieldset class="fliterzone">
+                    <legend>过滤</legend>
+                    <div class="content"></div>
+                </fieldset>
+
+                <div class='columnszone endbox text-center'>Columns</div>
+                <div class='rowszone endbox text-center'>Rows</div>
+                <div class="col-sm-6 col-sm-offset-6">
+                    <button id="preview" class="btn btn-sm btn-block">预览</button>
+                </div>
+                <div class="row"></div>
+            </div>
+        </div>
+
+    </div>
+    {#    hidden#}
+    <div class="aggs-box hidden">
+
+        {#    拖动后的对象#}
+        <div class='item btn btn-sm btn-primary' tabindex="0" role="button" data-toggle="popover">
+            拖动后的对象
+            <span class="glyphicon glyphicon-remove" style="color: black;margin-left: 5px"></span>
+        </div>
+        {#    维度指标对象  #}
+        <div class="draglist col-sm-6 text-center" draggable="true">维度指标标题</div>
+        {#        过滤框内的日期对象 #}
+        <form class="date-box form-inline form-group-sm" onsubmit="return false;">
+            <div class="form-group">
+                <label>标题</label>
+                <input name="min" type="datetime" class="form-control" placeholder="开始时间">
+            </div>
+            <div class="form-group">
+                <input name="max" type="datetime" class="form-control " placeholder="结束时间">
+            </div>
+            <button type="button" class="btn btn-danger btn-xs">
+                <span class="glyphicon glyphicon-remove"></span>
+            </button>
+        </form>
+        {# 过滤的数字对象  #}
+        <form class="number-box form-inline form-group-sm" onsubmit="return false;">
+            <div class="form-group">
+                <label>标题</label>
+                <select name="oper" class="form-control" style="width: 160px"></select>
+            </div>
+            <div class="form-group">
+                <input name="value" type="text" class="form-control" placeholder="输入过滤内容">
+            </div>
+            <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span>
+            </button>
+        </form>
+        {#      指标的数字对象  #}
+        <form class="index-number">
+            <label class="col-sm-4">聚合方法</label>
+            <label class="col-sm-8">
+                <input name="agg" type="text" class="form-control input-sm">
+            </label>
+        </form>
+
+        {# 维度字符样式 #}
+        <form class="dimension-string">
+            <div class="form-group form-group-sm">
+                <label class="col-sm-3">排序</label>
+                <label class="col-sm-9">
+                    <select name="order" class="form-control input-sm">
+                        <option value="desc">倒序</option>
+                        <option value="asc">正序</option>
+                    </select>
+                </label>
+            </div>
+            <div class="form-group form-group-sm">
+                <label class="col-sm-3">TOP</label>
+                <label class="col-sm-9">
+                    <input name="size" value="5" type="text" class="form-control input-sm" placeholder="默认为5">
+                </label>
+            </div>
+        </form>
+        {#    维度数值样式    #}
+        <form class="dimension-number" onsubmit="return false;">
+            <div class="form-inline">
+                <div class="form-group form-group-sm">
+                    <label></label>
+                    <input name="start" type="text" class="form-control input-sm" placeholder="开始范围(0)">
+                </div>
+                <div class="form-group form-group-sm">
+                    <label></label>
+                    <input name="end" type="text" class="form-control input-sm" placeholder="结束范围">
+                </div>
+                <button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
+            </div>
+            <button class="btn btn-xs btn-block">添加</button>
+        </form>
+    </div>
+
 {% endblock %}
 {% block footer %}
     {{ super() }}
     <script> // 扩展
+    String.prototype.trim = function () {
+        return this.replace(/(^\s*)|(\s*$)/g, "");
+    };
+    //删除左边的空格
+    String.prototype.ltrim = function () {
+        return this.replace(/(^\s*)/g, "");
+    };
+    //删除右边的空格
+    String.prototype.rtrim = function () {
+        return this.replace(/(\s*$)/g, "");
+    };
     Array.prototype.indexOf = function (val) {
         for (var i = 0; i < this.length; i++) {
             if (this[i] == val) return i;
@@ -43,12 +228,6 @@
         return newobj;
     }
 
-
-    function getObjectFirst(object) {
-        for (var item in object) {
-            return object[item]
-        }
-    }
 
     function getOneByArray(array, key, value) { // 获得数组嵌套对象的中的一个对象
         for (var i = 0; i < array.length; i++) {
@@ -98,6 +277,8 @@
 
     log = console.log;
     </script>
+    <script src="/static/plugin/highchart_edit/highcharts-editor.min.js"></script>
+    <script src="/static/plugin/highchart_edit/highcharts-editor.advanced.min.js"></script>
     <script>
         var dbs = {{ dbs | tojson | safe }}, filters = {{ filters | tojson | safe }};
     </script>
@@ -243,9 +424,7 @@
         // 标签被拖动后绑定所有的事件产生的标签 ========================================================================================
         var popoverHide = function (e) {
             var info = updateObject($(this).data("info"), $(this).next().find("form").serializeJson());
-            log($(this));
             $(this).data("info", info);
-            log($(this).data("info"))
         };
         var PopoverContentMapping = {
             dimension: {
@@ -266,7 +445,6 @@
                     "html": aggsBox.find(".index-number:eq(0)"),
                     "show": function (e) {
                         var hit_aggregates = filters.aggregate[hit_drag.source_type] || [];
-                        log(hit_aggregates);
                         if (!this.selectInit) { // 初始化
                             var popover = $(this).next();
                             popover.find("input:eq(0)").select2({
@@ -363,7 +541,6 @@
 
                 ondrop: function (ev) {
                     this.style.borderColor = "#ccc";
-                    log(hit_drag);
                     if ($(selector).hasClass(classMapping[hit_drag.class])) {
                         $(selector).append(bingTag(item.clone(true)));
                     } else {
@@ -379,33 +556,57 @@
         bindDrag(".rowszone");
 
 
-        // 预览功能 ============================================================================================================
-
+        // 参数检验 ============================================================================================================
+        function checkParams(params) {
+            log(params);
+            var msg;
+            if (!hit_drag.id) {
+                msg = "请添加查询条件"
+            }
+            {#            if (!){#}
+            {#                #}
+            {#            }#}
+            if (!msg) {
+                return params
+            }
+            alert(msg)
+        }
 
         // 预览功能 ============================================================================================================
         var ajaxErrorFunc = function () {
             alert("网络错误")
         };
         $("#preview").click(function () {
-            var zoneMappings = {'filter': '.fliterzone .content', 'rows': '.rowszone', 'columns': '.columnszone'};
+            var zoneMappings = {'filters': '.fliterzone .content', 'rows': '.rowszone', 'columns': '.columnszone'};
             for (var item in zoneMappings) {
                 request_params[item] = [];
                 $(zoneMappings[item]).children().each(function () {
                     request_params[item].push(updateObject($(this).data("info"), $(this).serializeJson()));
+                    // TODO 这里应该对所有的表单添加验证方式
                 });
             }
-            $.ajax({
-                method: "POST",
-                url: "/createchart/preview",
-                data: request_params,
-                success: function (response) {
-                    if (!response.status) {
-                        alert(response.msg)
-                    }
-                },
-                error: ajaxErrorFunc
-            });
-            log(request_params)
+            var data = checkParams(updateObject({
+                "source_id": hit_drag.id,
+                query: $("#query").val().trim() || "*",
+                limit: 0
+            }, request_params));
+            if (data) {
+{#                $.ajax({#}
+{#                    method: "POST",#}
+{#                    url: "/createchart/preview",#}
+{#                    data: JSON.stringify(data),#}
+{#                    dataType: "json",#}
+{#                    success: function (response) {#}
+{#                        if (!response.status) {#}
+{#                            alert(response.msg)#}
+{#                        }#}
+{#                        log(response)#}
+{#                    },#}
+{#                    error: ajaxErrorFunc#}
+{#                });#}
+
+
+            }
         });
 
         // 初始化  ============================================================================================================
@@ -420,176 +621,4 @@
 
 
     </script>
-{% endblock %}
-{% block content %}
-    <style type="text/css">
-        body {
-            width: 100%;
-        }
-
-        fieldset {
-            padding: .35em 2em 1em 2em;
-            margin: 0 2px;
-            border: 1px solid silver
-        }
-
-        legend {
-            padding: .5em;
-            border: 0;
-            width: auto
-        }
-
-        .popover {
-            max-width: 1000px;
-            min-width: 300px;
-        }
-
-        .draglist {
-            padding: 4px 5px;
-            margin-bottom: 5px;
-            border: 1px dashed #ccc;
-            cursor: move;
-            font-size: 12px
-        }
-
-        .draglist:hover {
-            border-color: #cad5eb;
-            background-color: #eee;
-        }
-
-        .fliterzone form {
-            border-top: 1px solid #ccc;
-            padding: 1% 0 1% 0;
-        }
-
-        .item {
-            text-align: center;
-            padding: 0 4px 0 10px;
-            margin: 4px;
-            float: left;
-
-        }
-
-        .endbox {
-            margin: 10px 0;
-            padding: 0 5px;
-            border: 1px solid #ccc;
-            overflow: hidden;
-            height: 34px;
-        }
-
-
-    </style>
-
-    <div class="row">
-        <div class="col-sm-3">
-            <label for="c01-select"></label><input name="db" id="c01-select" class="form-control"/>
-            <label for="c02-select"></label><input name="table" id="c02-select" class="form-control"/>
-            <label></label><input name="query" class='form-control text-center' type='text' placeholder='Query(*)'/>
-            <fieldset>
-                <legend>维度</legend>
-                <div id="dimension" class="row"></div>
-            </fieldset>
-            <fieldset>
-                <legend>指标</legend>
-                <div id="index" class='row'></div>
-            </fieldset>
-            {#            <div style="height: 10000px;"></div>#}
-        </div>
-
-        <div class="col-sm-9 col-sm-offset-3" style="position: absolute;">
-            <div style="position: fixed;width: 50%;">
-                <fieldset class="fliterzone">
-                    <legend>过滤</legend>
-                    <div class="content"></div>
-                </fieldset>
-
-                <div class='columnszone endbox text-center'>Columns</div>
-                <div class='rowszone endbox text-center'>Rows</div>
-                <div class="col-sm-6 col-sm-offset-6">
-                    <button id="preview" class="btn btn-sm btn-block">预览</button>
-                </div>
-                <div class="row"></div>
-            </div>
-        </div>
-
-    </div>
-    {#    hidden#}
-    <div class="aggs-box hidden">
-
-        {#    拖动后的对象#}
-        <div class='item btn btn-sm btn-primary' tabindex="0" role="button" data-toggle="popover">
-            拖动后的对象
-            <span class="glyphicon glyphicon-remove" style="color: black;margin-left: 5px"></span>
-        </div>
-        {#    维度指标对象  #}
-        <div class="draglist col-sm-6 text-center" draggable="true">维度指标标题</div>
-        {#        过滤框内的日期对象 #}
-        <form class="date-box form-inline form-group-sm" onsubmit="return false;">
-            <div class="form-group">
-                <label>标题</label>
-                <input name="min" type="datetime" class="form-control" placeholder="开始时间">
-            </div>
-            <div class="form-group">
-                <input name="max" type="datetime" class="form-control " placeholder="结束时间">
-            </div>
-            <button type="button" class="btn btn-danger btn-xs">
-                <span class="glyphicon glyphicon-remove"></span>
-            </button>
-        </form>
-        {# 过滤的数字对象  #}
-        <form class="number-box form-inline form-group-sm" onsubmit="return false;">
-            <div class="form-group">
-                <label>标题</label>
-                <select name="oper" class="form-control" style="width: 160px"></select>
-            </div>
-            <div class="form-group">
-                <input name="value" type="text" class="form-control" placeholder="输入过滤内容">
-            </div>
-            <button class="btn btn-danger btn-xs"><span class="glyphicon glyphicon-remove"></span>
-            </button>
-        </form>
-        {#      指标的数字对象  #}
-        <form class="index-number">
-            <label class="col-sm-4">聚合方法</label>
-            <label class="col-sm-8">
-                <input name="agg" type="text" class="form-control input-sm">
-            </label>
-        </form>
-
-        {# 维度字符样式 #}
-        <form class="dimension-string">
-            <div class="form-group form-group-sm">
-                <label class="col-sm-3">排序</label>
-                <label class="col-sm-9">
-                    <select name="order" class="form-control input-sm">
-                        <option value="desc">倒序</option>
-                        <option value="asc">正序</option>
-                    </select>
-                </label>
-            </div>
-            <div class="form-group form-group-sm">
-                <label class="col-sm-3">TOP</label>
-                <label class="col-sm-9">
-                    <input name="size" value="5" type="text" class="form-control input-sm" placeholder="默认为5">
-                </label>
-            </div>
-        </form>
-        {#    维度数值样式    #}
-        <form class="dimension-number" onsubmit="return false;">
-            <div class="form-inline">
-                <div class="form-group form-group-sm">
-                    <label></label>
-                    <input name="start" type="text" class="form-control input-sm" placeholder="开始范围(0)">
-                </div>
-                <div class="form-group form-group-sm">
-                    <label></label>
-                    <input name="end" type="text" class="form-control input-sm" placeholder="结束范围">
-                </div>
-                <button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
-            </div>
-            <button class="btn btn-xs btn-block">添加</button>
-        </form>
-    </div>
-
 {% endblock %}

@@ -5,3 +5,13 @@ from logging import basicConfig, root as logger
 
 FORMAT = "[%(asctime)s - %(levelname)s]: %(message)s"
 basicConfig(level=LOG_LEVEL, format=FORMAT, datefmt='%Y-%m-%d %H:%M:%S', stream=stdout)
+
+
+def _print(*args, **kwargs):
+    """ 调试方法 前后虚线隔开"""
+    logger.debug("=" * 79)
+    logger.debug(*args, **kwargs)
+    logger.debug("=" * 79)
+
+
+logger._print = _print

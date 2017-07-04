@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from re import search
-from base.source_b import SourceBase
 from json import loads
+from base.source_b import SourceBase
 
 
 def r1(pattern, string):
@@ -28,9 +28,9 @@ class SourceManager:
             if item.get("status", 0) == 0:
                 continue
             _, address, index, type, _ = cls.parse_address(item.pop("address"))
-            for column in loads(item["columns"]):
+            for column in loads(item.get("columns") or "[]"):
                 field_result.setdefault("@".join([address, index]), {}).setdefault(type, {}).setdefault(
-                    column.pop("class"), []).append(dict(column, **{"id": item["id"]}))
+                    column.pop("class"), []).append(dict(column, **{"id": item["id"], "source_type": item["type"]}))
         return field_result
 
     @staticmethod

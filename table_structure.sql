@@ -147,6 +147,72 @@ CREATE TABLE `t_chart_fields` (
 ) COMMENT='自定义表和字段关系，用于拖拽使用' COLLATE='utf8_general_ci' ENGINE=InnoDB;
 
 
+DROP TABLE IF EXISTS `t_chart_fields_oper`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `t_chart_fields_oper` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `ds_types` tinyint(4) NOT NULL COMMENT '数据源类型',
+  `fields_types` varchar(50) NOT NULL COMMENT '字段类型',
+  `oper` varchar(10) NOT NULL COMMENT '操作符',
+  `handler` varchar(50) NOT NULL DEFAULT '' COMMENT '处理函数',
+  PRIMARY KEY (`id`),
+  KEY `ds_types_fields_types_oper` (`ds_types`,`fields_types`,`oper`)
+) ENGINE=InnoDB AUTO_INCREMENT=16 DEFAULT CHARSET=utf8 COMMENT='字段处理操作';
+
+
+DROP TABLE IF EXISTS `t_chart_source`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `t_chart_source` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `type` tinyint(4) NOT NULL COMMENT '地址来源类型',
+  `address` varchar(255) NOT NULL COMMENT '连接地址',
+  `columns` text NOT NULL COMMENT '定义的字段名称与类型',
+  `status` tinyint(4) NOT NULL DEFAULT '0' COMMENT '是否有效',
+  PRIMARY KEY (`id`),
+  KEY `status` (`status`),
+  KEY `dbs` (`address`)
+) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8 COMMENT='自定义表和字段关系，用于拖拽使用';
+
+
+-- 正在导出表  god_metric_meta.t_chart_modules 的数据：~7 rows (大约)
+-- DELETE FROM `t_chart_modules`;
+
+
+-- --------------------------------------------------------
+-- 主机:                           127.0.0.1
+-- 服务器版本:                        5.7.16-log - MySQL Community Server (GPL)
+-- 服务器操作系统:                      Win64
+-- HeidiSQL 版本:                  9.4.0.5125
+-- --------------------------------------------------------
+
+/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
+/*!40101 SET NAMES utf8 */;
+/*!50503 SET NAMES utf8 */;
+/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
+/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
+
+-- 导出  表 god_metric_meta.t_chart_test_data 结构
+CREATE TABLE IF NOT EXISTS `t_chart_test_data` (
+  `uid` bigint(20) NOT NULL COMMENT '用户id',
+  `name` varchar(50) DEFAULT NULL COMMENT '用户名',
+  `followers_count` int(11) DEFAULT NULL COMMENT '粉丝数',
+  `friends_count` int(11) DEFAULT NULL COMMENT '关注数',
+  `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
+  PRIMARY KEY (`uid`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+/*!40000 ALTER TABLE `t_chart_modules` DISABLE KEYS */;
+INSERT INTO `t_chart_modules` (`id`, `name`, `module_types`, `types`, `template`, `status`) VALUES
+  (1, 'fakecube', 'datasource', 2, 'datasource/fakecube_edit.tpl', 1),
+  (2, 'hive', 'datasource', 3, 'datasource/hive_edit.tpl', 1),
+  (3, 'mysql', 'datasource', 0, 'datasource/mysql_edit.tpl', 1),
+  (4, 'mysql_caculate', 'datasource', 1, 'datasource/mysql_caculate_edit.tpl', 1),
+  (5, 'mysql_caculate', 'task', 1, 'task/mysql_caculate_edit.tpl', 1),
+  (6, 'fakecube', 'task', 2, 'task/fakecube_edit.tpl', 1),
+  (7, 'hive', 'task', 3, 'task/hive_edit.tpl', 1);
+
 /*!40000 ALTER TABLE `t_chart_menu` DISABLE KEYS */;
 INSERT INTO `t_chart_menu` (`id`, `name`, `url`, `level`, `parent_id`, `sort`, `status`) VALUES
   (1, '数据源管理', '/datasource/', 1, 0, 100, 1),
@@ -172,44 +238,11 @@ INSERT INTO `t_chart_menu` (`id`, `name`, `url`, `level`, `parent_id`, `sort`, `
   (21, 'hive', '/task/edit?types=3', 3, 12, 100, 1);
 /*!40000 ALTER TABLE `t_chart_menu` ENABLE KEYS */;
 
--- 正在导出表  god_metric_meta.t_chart_modules 的数据：~7 rows (大约)
--- DELETE FROM `t_chart_modules`;
-/*!40000 ALTER TABLE `t_chart_modules` DISABLE KEYS */;
-INSERT INTO `t_chart_modules` (`id`, `name`, `module_types`, `types`, `template`, `status`) VALUES
-  (1, 'fakecube', 'datasource', 2, 'datasource/fakecube_edit.tpl', 1),
-  (2, 'hive', 'datasource', 3, 'datasource/hive_edit.tpl', 1),
-  (3, 'mysql', 'datasource', 0, 'datasource/mysql_edit.tpl', 1),
-  (4, 'mysql_caculate', 'datasource', 1, 'datasource/mysql_caculate_edit.tpl', 1),
-  (5, 'mysql_caculate', 'task', 1, 'task/mysql_caculate_edit.tpl', 1),
-  (6, 'fakecube', 'task', 2, 'task/fakecube_edit.tpl', 1),
-  (7, 'hive', 'task', 3, 'task/hive_edit.tpl', 1);
-
--- --------------------------------------------------------
--- 主机:                           127.0.0.1
--- 服务器版本:                        5.7.16-log - MySQL Community Server (GPL)
--- 服务器操作系统:                      Win64
--- HeidiSQL 版本:                  9.4.0.5125
--- --------------------------------------------------------
-
-/*!40101 SET @OLD_CHARACTER_SET_CLIENT=@@CHARACTER_SET_CLIENT */;
-/*!40101 SET NAMES utf8 */;
-/*!50503 SET NAMES utf8 */;
-/*!40014 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0 */;
-/*!40101 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='NO_AUTO_VALUE_ON_ZERO' */;
-
--- 导出  表 god_metric_meta.t_chart_test_data 结构
-CREATE TABLE IF NOT EXISTS `t_chart_test_data` (
-  `uid` bigint(20) NOT NULL COMMENT '用户id',
-  `name` varchar(50) DEFAULT NULL COMMENT '用户名',
-  `followers_count` int(11) DEFAULT NULL COMMENT '粉丝数',
-  `friends_count` int(11) DEFAULT NULL COMMENT '关注数',
-  `created_at` timestamp NULL DEFAULT NULL COMMENT '创建时间',
-  PRIMARY KEY (`uid`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 INSERT INTO `god_metric_meta`.`t_chart_datasource` (`id`, `name`, `types`, `conf`, `user`, `uptime`, `status`) VALUES ('1', 'pandas转换mysql', '0', '{\"mysql_connect\": \"mysql://root:123456@localhost/god_metric_meta\", \"code\": \"def trans(frame):\\r\\n    result=frame.groupby([\'dt\',\'ranges\'])\\r\\n    return result.c.sum().unstack()\", \"sqls\": \"select dt,ranges,count(*) as c from (select substr(created_at,1,4) as dt,case  when friends_count<=100 then \\\"0~100\\\" when 100<friends_count and friends_count<=1000\\r\\nthen \\\"100~1000\\\"  else \\\"1000\\u4ee5\\u4e0a\\\" end as ranges from t_chart_test_data) a group by dt,ranges;\"}', '0', '2017-04-26 19:22:08', '1');
 INSERT INTO `god_metric_meta`.`t_chart_datasource` (`id`, `name`, `types`, `conf`, `user`, `uptime`, `status`) VALUES ('2', '普通两列的引用', '0', '{\"mysql_connect\": \"mysql://root:123456@localhost/god_metric_meta\", \"code\": \"\", \"sqls\": \"select name,friends_count from t_chart_test_data where friends_count>#friends_count limit 30;\", \"customs\": \"#friends_count:100\"}', '0', '2017-04-26 19:10:22', '1');
 INSERT INTO `god_metric_meta`.`t_chart_reports` (`id`, `name`, `conf`, `code`, `customs`, `user`, `uptime`, `status`) VALUES ('1', '普通两列的引用', '{\"chart\":{\"type\":\"column\",\"polar\":false},\"title\":{\"text\":\"微博关注数\"},\"subtitle\":{\"text\":\"\"},\"exporting\":{},\"yAxis\":[{\"title\":{\"text\":\"人数\"}}],\"xAxis\":[{\"type\":\"category\"}],\"series\":[{\"data\":[[\"退役军人\",205]],\"name\":\"friends_count\",\"turboThreshold\":0,\"_colorIndex\":0,\"_symbolIndex\":0}],\"plotOptions\":{\"series\":{\"animation\":true}},\"credits\":{\"enabled\":false},\"tooltip\":{\"shared\":true}}', '', '[{\"2\": \"\"}]', '0', '2017-04-26 19:23:56', '1');
 INSERT INTO `god_metric_meta`.`t_chart_reports` (`id`, `name`, `conf`, `code`, `customs`, `user`, `uptime`, `status`) VALUES ('2', 'pandas转换mysql', '{\"chart\":{\"type\":\"column\"},\"plotOptions\":{\"series\":{\"stacking\":\"percent\",\"animation\":true}},\"title\":{\"text\":\"每年微博关注数占比\"},\"subtitle\":{\"text\":\"\"},\"exporting\":{},\"yAxis\":[{\"title\":{\"text\":\"占比\"}}],\"xAxis\":[{\"type\":\"category\"}],\"series\":[{\"data\":[[2009,10]],\"name\":\"0~100\",\"_colorIndex\":0,\"_symbolIndex\":0},{\"data\":[[2009,144]],\"name\":\"1000以上\",\"_colorIndex\":1,\"_symbolIndex\":1},{\"data\":[[2009,218]],\"name\":\"100~1000\",\"_colorIndex\":2,\"_symbolIndex\":2}],\"credits\":{\"enabled\":false}}', '', '[{\"1\": \"\"}]', '0', '2017-04-26 19:26:21', '1');
+
 
 -- 正在导出表  god_metric_meta.t_chart_test_data 的数据：~1,000 rows (大约)
 -- DELETE FROM `t_chart_test_data`;

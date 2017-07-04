@@ -2,7 +2,9 @@
 from json import dumps
 from manager import menu_m
 from utils import get_py_file
+from common.logger import logger
 from web.utils import IterBetter
+from traceback import format_exc
 from conf.default import MODULES_NAME
 from flask import request, render_template as render
 
@@ -15,10 +17,9 @@ def get_module_object(_modules_split, modules=MODULES_NAME):
     for it in files:
         try:
             tmp = __import__('{}.{}.{}'.format(modules, _modules_split, it), globals(), locals(), [it])
-            a = tmp.Manager()
-            objects[it] = a
+            objects[it] = tmp.Manager()
         except Exception, e:
-            pass
+            logger.warning(format_exc())
     return objects
 
 

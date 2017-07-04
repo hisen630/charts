@@ -44,7 +44,7 @@
             padding: 1% 0 1% 0;
         }
 
-        .item {
+        .marked {
             text-align: center;
             padding: 0 4px 0 10px;
             margin: 4px;
@@ -82,17 +82,28 @@
 
         <div class="col-sm-9 col-sm-offset-3" style="position: absolute;">
             <div style="position: fixed;width: 50%;">
-                <fieldset class="fliterzone">
-                    <legend>过滤</legend>
-                    <div class="content"></div>
-                </fieldset>
+                <div class="row">
+                    <fieldset class="fliterzone">
+                        <legend>过滤</legend>
+                        <div class="content"></div>
+                    </fieldset>
 
-                <div class='columnszone endbox text-center'>Columns</div>
-                <div class='rowszone endbox text-center'>Rows</div>
-                <div class="col-sm-6 col-sm-offset-6">
+                    <div class='columnszone endbox text-center'>Columns</div>
+                    <div class='rowszone endbox text-center'>Rows</div>
+                </div>
+
+                <div class="col-sm-6">
+                    <div class="col-sm-6 pull-right">
+                        <button id="setting" class="btn btn-sm btn-success btn-block">编辑图表</button>
+                    </div>
+                </div>
+                <div class="col-sm-6">
                     <button id="preview" class="btn btn-sm btn-block">预览</button>
                 </div>
-                <div class="row"></div>
+                <div class="row">
+                    <div id="chart-show" style="min-height: 500px;"></div>
+
+                </div>
             </div>
         </div>
 
@@ -100,10 +111,10 @@
     {#    hidden#}
     <div class="aggs-box hidden">
 
-        {#    拖动后的对象#}
-        <div class='item btn btn-sm btn-primary' tabindex="0" role="button" data-toggle="popover">
+        {#    拖动后的对象   draggable="true" tabindex="0" role="button" data-toggle="popover"  #}
+        <div class='marked btn btn-sm btn-primary' draggable="true">
             拖动后的对象
-            <span class="glyphicon glyphicon-remove" style="color: black;margin-left: 5px"></span>
+            <span class="glyphicon glyphicon-chevron-up" style="color: black;margin-left: 5px"></span>
         </div>
         {#    维度指标对象  #}
         <div class="draglist col-sm-6 text-center" draggable="true">维度指标标题</div>
@@ -264,6 +275,13 @@
         }
         return true
     }
+    function clearDragover(JqObject) {
+        JqObject.ondragover = function (event) {
+            event.preventDefault();
+            return true;
+        };
+        return JqObject
+    }
     (function ($) { // Jquery转JSON
         $.fn.serializeJson = function () {
             var serializeObj = {};
@@ -276,15 +294,33 @@
 
 
     log = console.log;
+    function dir(object) {
+        for (var item in object)
+            console.log(item)
+    }
+
     </script>
+    <script src="https://code.highcharts.com/stock/highstock.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.highcharts.com/adapters/standalone-framework.js" type="text/javascript"
+            charset="utf-8"></script>
+    <script src="https://code.highcharts.com/highcharts-more.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.highcharts.com/highcharts-3d.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.highcharts.com/modules/data.js" type="text/javascript" charset="utf-8"></script>
+    <script src="https://code.highcharts.com/modules/exporting.js"></script>
+    <script src="https://code.highcharts.com/modules/funnel.js"></script>
+    <script src="https://code.highcharts.com/modules/solid-gauge.js"></script>
     <script src="/static/plugin/highchart_edit/highcharts-editor.min.js"></script>
     <script src="/static/plugin/highchart_edit/highcharts-editor.advanced.min.js"></script>
+    <script src="/static/plugin/highchart_edit/highcharts.editor.lang.zh_cn.js"></script>
+    <script src="/static/plugin/highchart_edit/highed.meta.charts.js"></script>
+    <script src="/static/plugin/highchart_edit/highed.dataimporter.js"></script>
     <script>
         var dbs = {{ dbs | tojson | safe }}, filters = {{ filters | tojson | safe }};
     </script>
     <script type="text/javascript">
         // 标记数据  ===========================================================================================================
-        var hit_drag = {}, request_params = {}, aggsBox = $(".aggs-box");  // 当前被拖动的对象 请求参数的请求体 复制全部节点
+        var hit_drag = {}, request_params = {}, settings = {}, aggsBox = $(".aggs-box");
+        // 当前被拖动的对象 / 请求参数的请求体 / chart的配置代码  / 复制全部节点
         // 重置功能 ============================================================================================================
         var index = $('#index'), dimension = $('#dimension'), columns = $(".columnszone"), rows = $(".rowszone");
 
@@ -395,34 +431,20 @@
             }
         };
 
-        // 过滤区域安装拖动对象放下事件 ============================================================================================
-
-        updateObject($(".fliterzone:eq(0)")[0], {
-            ondragover: function (ev) {
-                this.style.borderColor = "#56a95b";
-                ev.preventDefault();
-                return true;
-            },
-            ondragenter: function (ev) {
-                this.style.borderColor = "#56a95b";
-                return true;
-            },
-            ondragleave: function (ev) {
-                this.style.borderColor = "#ccc";
-                return true;
-            },
-            ondrop: function (ev) {
-                if (filters.operations[hit_drag.source_type]) {
-                    updateObject(clearObject(hit_oper), filters.operations[hit_drag.source_type][hit_drag.type]);// 更新对象
-                    $('.fliterzone .content').append(typesMapping[hit_drag.type]);
-                } else {
-                    alert("后台源类型与库类型不匹配(Source Type），请联系管理员或自行更改配置!")
-                }
-                return false;
+        // 过滤区域安装拖动对象放下事件 ===========================================================================================
+        clearDragover($(".fliterzone:eq(0)")[0]).ondrop = function (ev) {
+            if (filters.operations[hit_drag.source_type]) {
+                updateObject(clearObject(hit_oper), filters.operations[hit_drag.source_type][hit_drag.type]);// 更新对象
+                $('.fliterzone .content').append(typesMapping[hit_drag.type]);
+            } else {
+                alert("后台源类型与库类型不匹配(Source Type），请联系管理员或自行更改配置!")
             }
-        });
-        // 标签被拖动后绑定所有的事件产生的标签 ========================================================================================
+            return false;
+        };
+
+        // 标签被拖动后绑定所有的事件产生的标签 ====================================================================================
         var popoverHide = function (e) {
+            $(this).find("span:eq(0)").attr("class", "glyphicon glyphicon-chevron-up");
             var info = updateObject($(this).data("info"), $(this).next().find("form").serializeJson());
             $(this).data("info", info);
         };
@@ -480,36 +502,26 @@
                 $('.popover').not($(this)).popover("hide"); // 同时只能打开一个popover
                 $(this).popover("toggle"); // 切换状态
                 event.stopPropagation();
-            }).on("shown.bs.popover", hit.show).on("hide.bs.popover", hit.hide);
+            }).on("shown.bs.popover", hit.show).on("hide.bs.popover", hit.hide).on("shown.bs.popover", function () {
+                $(this).find("span:eq(0)").attr("class", "glyphicon glyphicon-chevron-down");
+            });
             tag.data("info", updateObject((tag.data("info") || {}), html.serializeJson())); // 绑定数据
+            return tag
         }
         function bingTag(tag) {
             tag.data("info", updateObject((tag.data("info") || {}), cloneObject(hit_drag))); // 绑定数据
             var span = tag.children("span:eq(0)").clone(true); // 事件一并克隆
             tag.text(hit_drag.label); // 更新文案
             tag.append(span); // 重新插入删除按钮
-            bindPopover(tag);
-            return tag
+            return bindPopover(tag);
         }
 
-        //  rwos/columns 指向事件绑定命中拖动元素  ============================================================================================================
+        //  rwos/columns 指向事件绑定命中拖动元素  ===============================================================================
 
-        var item = aggsBox.find(".item");  // 拖动后的对象事件
-        item.find("span").on('click', function (event) { // 删除按钮
-            $(this).parent().remove();
-        });
+        var marked = aggsBox.find(".marked:eq(0)");  // 拖动后的对象事件
 
-        {#        item.popover({ // 拖动后的对象的弹窗事件#}
-        {#            html: true,#}
-        {#            trigger: "manual",#}
-        {#            placement: "bottom",#}
-        {#            title: "标题",#}
-        {#            content: "加载中..."#}
-        {#        }).click(function (event) {#}
-        {#            $('.popover').not($(this)).popover("hide"); // 同时只能打开一个popover#}
-        {#            $(this).popover("toggle"); // 切换状态#}
-        {#            event.stopPropagation();#}
-        {#        });#}
+        // 全局元素被点击和被拖放后的操作  ========================================================================================
+
 
         $(document).click(function (e) { // 弹窗关闭事件
             if ($(e.target).parents(".popover").length === 0) {
@@ -518,38 +530,27 @@
         });
 
 
-        //  rwos/columns 添加被拖动域  ===========================================================================================
+        //  rwos/columns 添加被拖动域  ==========================================================================================
         var classMapping = {
             "dimension": "columnszone",
             "index": "rowszone"
         };
         function bindDrag(selector) { // 绑定拖动功能
-            return updateObject($(selector)[0], {
-                ondragover: function (ev) {
-                    this.style.borderColor = "#56a95b";
-                    ev.preventDefault();
-                    return true;
-                },
-                ondragenter: function (ev) {
-                    this.style.borderColor = "#56a95b";
-                    return true;
-                },
-                ondragleave: function (ev) {
-                    this.style.borderColor = "#ccc";
-                    return true;
-                },
-
-                ondrop: function (ev) {
-                    this.style.borderColor = "#ccc";
-                    if ($(selector).hasClass(classMapping[hit_drag.class])) {
-                        $(selector).append(bingTag(item.clone(true)));
-                    } else {
-                        alert("维度只能拖向Columns,指标只能拖向Rows;请重新配置。")
-                    }
-
-                    return false;
+            clearDragover($(selector)[0]).ondrop = function () {
+                this.style.borderColor = "#ccc";
+                if ($(selector).hasClass(classMapping[hit_drag.class])) {
+                    var newMarked = marked.clone(true);
+                    newMarked[0].ondragend = function (event) { // 安装拖动后删除事件
+                        $(this).remove();
+                        event.dataTransfer.clearData("text");
+                    };
+                    $(selector).append(bingTag(newMarked));
+                } else {
+                    alert("维度只能拖向Columns,指标只能拖向Rows;请重新配置。")
                 }
-            })
+                return false;
+            };
+
         }
 
         bindDrag(".columnszone");
@@ -577,6 +578,7 @@
             alert("网络错误")
         };
         $("#preview").click(function () {
+            $('.popover').popover("hide"); // 隐藏所有弹窗
             var zoneMappings = {'filters': '.fliterzone .content', 'rows': '.rowszone', 'columns': '.columnszone'};
             for (var item in zoneMappings) {
                 request_params[item] = [];
@@ -585,34 +587,57 @@
                     // TODO 这里应该对所有的表单添加验证方式
                 });
             }
-            var data = checkParams(updateObject({
+            var data = updateObject({
                 "source_id": hit_drag.id,
                 query: $("#query").val().trim() || "*",
                 limit: 0
-            }, request_params));
+            }, request_params);  //checkParams();
+            var highchartsObject = $(".highed-container");
+
             if (data) {
-{#                $.ajax({#}
-{#                    method: "POST",#}
-{#                    url: "/createchart/preview",#}
-{#                    data: JSON.stringify(data),#}
-{#                    dataType: "json",#}
-{#                    success: function (response) {#}
-{#                        if (!response.status) {#}
-{#                            alert(response.msg)#}
-{#                        }#}
-{#                        log(response)#}
-{#                    },#}
-{#                    error: ajaxErrorFunc#}
-{#                });#}
+                $.ajax({
+                    method: "POST",
+                    url: "/createchart/preview",
+                    data: JSON.stringify(data),
+                    dataType: "json",
+                    success: function (response) {
+                        if (!response.status)
+                            alert(response.msg);
+                        log(JSON.stringify(response));
+                        var csv = [];
+                        for (var i = 0; i < response.data.length; i++) {
+                            csv.push(response.data[i].join(","));
+                        }
+                        highchartsObject.find(".tab-body-padded:first .highed-imp-pastearea:eq(0)").val(csv.join("\n")); // 写入csv
+                        highchartsObject.find(".highed-imp-button:eq(1)").click(); // 点击预览按钮
 
-
+                    },
+                    error: ajaxErrorFunc
+                });
             }
+
+
         });
+
 
         // 初始化  ============================================================================================================
         function init() {
             selected_db.trigger("select2-selecting"); // 触发默认选中机制
             selected_db.select2('val', '0'); //  选中第一个
+            {#            Highcharts.chart('chart-show', ); 编辑功能的初始化 #}
+            highed.ready(function () {
+                highed.setLang('zh_cn');
+                highed.ModalEditor('preview', {
+                    allowDone: true,
+                    features: 'import templates customize welcome done',
+                    importer: {
+                        options: 'plugins csv json samples'
+                    }
+                }, function (chart) {
+                    log(JSON.stringify(chart.export.json()));
+                    Highcharts.chart('chart-show', chart.export.json());
+                });
+            });
         }
 
         $(function () {
@@ -621,4 +646,5 @@
 
 
     </script>
+
 {% endblock %}

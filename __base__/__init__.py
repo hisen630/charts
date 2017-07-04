@@ -19,6 +19,7 @@ from error import (
     SystemError,
     ChartsError,
     APIError,
+    AssertionError,
     NotImplementedManagerMappingTypeError,
 )
 

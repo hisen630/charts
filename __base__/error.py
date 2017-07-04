@@ -32,6 +32,10 @@ class ChartsError(SystemError):
         self.status = status or self.status
 
 
+class AssertionError(ChartsError):
+    pass
+
+
 class NotImplementedManagerMappingTypeError(ChartsError):
     code = 1001
     msg = "未实现的映射管理器错误(该类型不支持，请修改Type)."

@@ -117,7 +117,7 @@
             <span class="glyphicon glyphicon-chevron-up" style="color: black;margin-left: 5px"></span>
         </div>
         {#    维度指标对象  #}
-        <div class="draglist col-sm-6 text-center" draggable="true">维度指标标题</div>
+        <div class="draglist text-center" draggable="true">维度指标标题</div>
         {#        过滤框内的日期对象 #}
         <form class="date-box form-inline form-group-sm" onsubmit="return false;">
             <div class="form-group">

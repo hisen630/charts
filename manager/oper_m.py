@@ -8,12 +8,17 @@ class OperManager:
 
     @classmethod
     def get_data(cls, ids=()):
-        result = OperBase.get_data_by_ids(ids)
-        final_result = {}
-        for item in result:
-            final_result.setdefault(item["ds_types"], {}).setdefault(
+        operations = OperBase.get_data_by_ids(ids)
+        result = {}
+        operations_result = result.setdefault("operations", {})
+        for item in operations:
+            operations_result.setdefault(item["ds_types"], {}).setdefault(
                 item["fields_types"], {}).setdefault(item["oper"], item["id"])
-        return final_result
+        result["aggregate"] = {  # TODO 这里聚合函数的操作被写死了 之后开放
+            0: [{"name": "sum", "label": "求和"}, {"name": "max", "label": "求最大"}, {"name": "min", "label": "求最小"}],
+            4: [{"name": "sum", "label": "求和"}, {"name": "max", "label": "求最大"}, {"name": "min", "label": "求最小"}]
+        }
+        return result
 
     @staticmethod
     def get_by_id(id):

@@ -26,6 +26,7 @@ _format = {
 
 _format_time = r'%Y-%m-%d %H:%M:%S'
 _parse_num = re.compile(r"(\d+)(\w)")
+global _now
 _now = time.time()
 class TimeCac():
     '''
@@ -162,6 +163,7 @@ class TimeCac():
         return time.mktime(time.strptime("-".join("%s" % i for i in arr)+self.suffix,"%Y-%m-%d %X"))
 
 def get_time_range(mode,fromt,tot,timestramp=0):
+    global _now
     if timestramp:
         _now = int(timestramp)
     else:
@@ -184,6 +186,7 @@ def get_time_by_tag(fromt,tot):
 
 def parse_time(data):
     if 'now' in data:
+        global _now
         now_time = int(_now)
         s_time = now_time
         if data == 'now':
@@ -225,6 +228,7 @@ def get_time_by_absolute(fromt,tot):
     result = ['','']
     if fromt and tot:
         try:
+            global _now
             stime = str(int(time.mktime(time.strptime(fromt,"%Y-%m-%d %H:%M:%S"))*1000))
             if tot == 'now':
                 etime = str(int(_now*1000))

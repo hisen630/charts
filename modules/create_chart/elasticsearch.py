@@ -146,7 +146,7 @@ class ElasticSearchRTC(RTC, ElasticSearchParamsParse):
         self.response = loads(_req_url(self.address, self.request_body))
         logger.pprint(self.response)
         if not self.response or 'aggregations' not in self.response:
-            raise APIError("请求失败")
+            raise APIError("没有聚合成功的内容,{}".format(dumps(self.response)))
         data = get_table(self.response.get('aggregations', {}), self.rows_keys)
         if len(self.columns) > 1:
             data = trans(data, self.column_heads, self.row_heads)

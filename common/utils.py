@@ -502,9 +502,9 @@ def _req_url(url, data=None, repeat=4):
         try:
             logger.debug("Request {}".format(url))
             return urllib2.urlopen(urllib2.Request(url, data)).read()
-        except:
+        except Exception, e:
             logger.error(format_exc())
-            raise APIError(u"获取不到数据")
+            raise APIError(u"获取不到数据,{}!".format(e))
 
 
 def _req_url_body(url, data, isput=False):

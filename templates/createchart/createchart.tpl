@@ -65,10 +65,11 @@
 
     <div class="row">
         <div class="col-sm-3">
-            <label for="c01-select"></label><input name="db" id="c01-select" class="form-control"/>
-            <label for="c02-select"></label><input name="table" id="c02-select" class="form-control"/>
-            <label></label><input id="query" name="query" class='form-control text-center' type='text'
-                                  placeholder='Query(*)'/>
+            <label for="c01-select">表</label><input name="db" id="c01-select" class="form-control"/>
+            <label for="c02-select">库</label><input name="table" id="c02-select" class="form-control"/>
+            <label>搜索</label>
+            <input id="query" name="query" class='form-control text-center' type='text'
+                   placeholder='Query(*)'/>
             <fieldset>
                 <legend>维度</legend>
                 <div id="dimension" class="row"></div>
@@ -101,7 +102,7 @@
                     <button id="preview" class="btn btn-sm btn-block">预览</button>
                 </div>
                 <div class="row">
-                    <div id="chart-show" style="min-height: 500px;"></div>
+                    <div id="chart-show" style="min-height: 400px;"></div>
 
                 </div>
             </div>
@@ -169,7 +170,7 @@
                 </label>
             </div>
         </form>
-        {#    维度数值样式    #}
+        {#    维度数值指定区间    #}
         <form class="dimension-number" onsubmit="return false;">
             <div class="form-inline">
                 <div class="form-group form-group-sm">
@@ -180,9 +181,39 @@
                     <label></label>
                     <input name="end" type="text" class="form-control input-sm" placeholder="结束范围">
                 </div>
+                <input type="hidden" name="oper" value="histogram">
                 <button class="btn btn-xs btn-danger"><span class="glyphicon glyphicon-remove"></span></button>
             </div>
             <button class="btn btn-xs btn-block">添加</button>
+        </form>
+        {# 维度数字类型间隔类型 #}
+        <form class="interval-number" onsubmit="return false;">
+            <div class="form-inline">
+                <div class="form-group form-group-sm">
+                    <label></label>
+                    <input name="interval" type="text" class="form-control input-sm" placeholder="间隔数字">
+                </div>
+                <input type="hidden" name="oper" value="histogram">
+            </div>
+        </form>
+        {#  维度日期间隔类型  #}
+        <form class="interval-date" onsubmit="return false;">
+            <div class="form-inline">
+                <div class="form-group form-group-sm">
+                    <input name="interval" type="text" class="form-control input-sm" placeholder="间隔">
+                    <select name="unit" class="form-control input-sm">
+                        <option value="y">年</option>
+                        <option value="M">月</option>
+                        <option value="w">周</option>
+                        <option value="d">日</option>
+                        <option value="h">时</option>
+                        <option value="m">分</option>
+                        <option value="s">秒</option>
+                    </select>
+                </div>
+
+                <input type="hidden" name="oper" value="histogram">
+            </div>
         </form>
     </div>
 
@@ -223,6 +254,10 @@
             }
         }
         return res;
+    };
+    Array.prototype.clear = function () {
+        this.splice(0, this.length);
+        return this
     };
     function cloneObject(obj) {
         var str, newobj = obj.constructor === Array ? [] : {};
@@ -315,7 +350,7 @@
     <script src="/static/plugin/highchart_edit/highed.meta.charts.js"></script>
     <script src="/static/plugin/highchart_edit/highed.dataimporter.js"></script>
     <script>
-        var dbs = {{ dbs | tojson | safe }}, filters = {{ filters | tojson | safe }};
+        var dbs = {{ dbs | tojson | safe }}, mappings = {{ mappings | tojson | safe }};
     </script>
     <script type="text/javascript">
         // 标记数据  ===========================================================================================================
@@ -404,7 +439,7 @@
 
         // 过滤区域映射 =========================================================================================================
 
-        var hit_oper = {};
+        var hit_oper = [];
         aggsBox.find(".number-box button.btn-danger:last,.date-box button.btn-danger:last").each(function () { // 安装过滤框的关闭按钮事件
             $(this).click(function () {
                 $(this).parent("form").remove()
@@ -415,8 +450,8 @@
             numberBox.find("label:eq(0)").text(hit_drag.label); //  更改标题
             numberBox.data("info", cloneObject(hit_drag));
             var select = numberBox.find("select");
-            for (var item in hit_oper) {
-                select.append($("<option value='" + hit_oper[item] + "'>" + item + "</option>"));
+            for (var i = 0; i < hit_oper.length; i++) {
+                select.append($("<option value='" + hit_oper[i] + "'>" + hit_oper[i] + "</option>"));
             }
             return numberBox
         };
@@ -433,12 +468,8 @@
 
         // 过滤区域安装拖动对象放下事件 ===========================================================================================
         clearDragover($(".fliterzone:eq(0)")[0]).ondrop = function (ev) {
-            if (filters.operations[hit_drag.source_type]) {
-                updateObject(clearObject(hit_oper), filters.operations[hit_drag.source_type][hit_drag.type]);// 更新对象
-                $('.fliterzone .content').append(typesMapping[hit_drag.type]);
-            } else {
-                alert("后台源类型与库类型不匹配(Source Type），请联系管理员或自行更改配置!")
-            }
+            log(updateObject(hit_oper.clear(), ((mappings[hit_drag.source_type] || {})[hit_drag.type] || {}).filter));// 更新对象
+            $('.fliterzone .content').append(typesMapping[hit_drag.type]);
             return false;
         };
 
@@ -451,35 +482,36 @@
         var PopoverContentMapping = {
             dimension: {
                 "number": {
-                    "html": aggsBox.find(".dimension-number:eq(0)"),
+                    "html": aggsBox.find(".interval-number:eq(0)"),
                     "hide": popoverHide
                 },
                 "string": {
                     "html": aggsBox.find(".dimension-string:eq(0)"),
                     "hide": popoverHide
                 },
-                "data": function () {
-
+                "date": {
+                    "html": aggsBox.find(".interval-date:eq(0)"),
+                    "hide": popoverHide
                 }
             },
             index: {
                 "number": {
                     "html": aggsBox.find(".index-number:eq(0)"),
                     "show": function (e) {
-                        var hit_aggregates = filters.aggregate[hit_drag.source_type] || [];
+                        var hit_aggregates = ((mappings[hit_drag.source_type] || {})[hit_drag.type] || {}).aggregates || [];
                         if (!this.selectInit) { // 初始化
                             var popover = $(this).next();
                             popover.find("input:eq(0)").select2({
                                 data: function () {
                                     var temp = [];
                                     for (var i = 0; i < hit_aggregates.length; i++) {
-                                        temp.push({id: hit_aggregates[i].name, 'text': hit_aggregates[i].label})
+                                        temp.push({id: hit_aggregates[i], 'text': hit_aggregates[i]})
                                     }
                                     return temp
                                 }(),
                                 placeholder: '选择聚合函数',
                                 allowClear: true
-                            }).select2("val", "sum"); // 默认求和;
+                            }).select2("val", "求和"); // 默认求和;
                             this.selectInit = true
                         }
 
@@ -575,7 +607,7 @@
 
         // 预览功能 ============================================================================================================
         var ajaxErrorFunc = function () {
-            alert("网络错误")
+            alert("服务器错误，请联系管理员。")
         };
         $("#preview").click(function () {
             $('.popover').popover("hide"); // 隐藏所有弹窗
@@ -587,11 +619,11 @@
                     // TODO 这里应该对所有的表单添加验证方式
                 });
             }
-            var data = updateObject({
+            var data = checkParams(updateObject({
                 "source_id": hit_drag.id,
                 query: $("#query").val().trim() || "*",
                 limit: 0
-            }, request_params);  //checkParams();
+            }, request_params));  //checkParams();
             var highchartsObject = $(".highed-container");
 
             if (data) {
@@ -610,6 +642,7 @@
                         }
                         highchartsObject.find(".tab-body-padded:first .highed-imp-pastearea:eq(0)").val(csv.join("\n")); // 写入csv
                         highchartsObject.find(".highed-imp-button:eq(1)").click(); // 点击预览按钮
+                        $("#setting").click();
 
                     },
                     error: ajaxErrorFunc
@@ -618,7 +651,9 @@
 
 
         });
-
+        $("#setting").click(function () {
+            $(".label-active").click() // 自动打开选择图表页面
+        });
 
         // 初始化  ============================================================================================================
         function init() {
@@ -627,7 +662,7 @@
             {#            Highcharts.chart('chart-show', ); 编辑功能的初始化 #}
             highed.ready(function () {
                 highed.setLang('zh_cn');
-                highed.ModalEditor('preview', {
+                highed.ModalEditor('setting', {
                     allowDone: true,
                     features: 'import templates customize welcome done',
                     importer: {

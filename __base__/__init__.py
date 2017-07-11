@@ -16,7 +16,10 @@ from elastic_search import (
     ElasticSearch,
     ElasticSearchParseBase,
     ElasticSearchParse,
-    ElasticSearchParamsParseParse,
+    ElasticSearchParamsParse,
+    ElasticSearchQuery,
+    ElasticSearchAggregation,
+    ElasticSearchFiltered,
 )
 
 from error import (

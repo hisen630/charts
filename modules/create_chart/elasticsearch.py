@@ -1,218 +1,118 @@
 # coding:utf-8
 from __future__ import unicode_literals
-from __base__ import RTC, ChartsError
-from copy import deepcopy
+from abc import ABCMeta, abstractproperty
+from __base__.api.es import (
+    Search, Term, Match, Terms, Range,
+    Avg, Sum, Max, Min, ExtendedStats, Cardinality,
+    Histogram, DateHistogram
+)
+
+from __base__ import (
+    RTC,
+    APIError,
+    ElasticSearchParamsParse,
+
+)
+
 from time import time as now
-from pandas import DataFrame
 from json import loads, dumps
+from common.base import get_table, trans
+from common.utils import _req_url
 from common.logger import logger
-from common.utils import _req_url, to_table
-
-from abc import ABCMeta, abstractmethod, abstractproperty
-
-start_time = 1464754939523
 
 
-class ElasticSearchAggs(dict):
+class CheckParams(object):
+    """ 方法参数的映射与生成 """
     __metaclass__ = ABCMeta
-    key = abstractproperty()  # 前置Key
-
-    def __init__(self, column):
-        super(ElasticSearchAggs, self).__init__()
-        self.column = column
-        self.body = self.setdefault(self.key, {"field": column["field"]})
-        self.parse()  # 调用解析规则
-
-    @abstractmethod
-    def parse(self):
-        """ 解析规则 """
+    type = abstractproperty()
 
 
-class ElasticSearchLimit(dict):
-    def __init__(self, limit=0):
-        super(ElasticSearchLimit, self).__init__()
-        self["size"] = limit
-
-
-class ElasticSearchFiltered(dict):
-    """ es 过滤对象"""
-    __metaclass__ = ABCMeta
-    key = abstractproperty()  # 前置Key
-
-    def __init__(self, column):
-        super(ElasticSearchFiltered, self).__init__()
-        self.column = column
-        self.body = self.setdefault(self.key, {}).setdefault(self.column["field"], {})
-        self.parse()  # 调用解析规则
-
-    @abstractmethod
-    def parse(self):
-        """ 解析规则 """
-
-
-class DateRange(ElasticSearchFiltered):
-    """  所有数据的基本的时间区间  """
-    key = "range"
-    start = property(lambda self: self.column.get("min") or 1464754939523)
-    end = property(lambda self: self.column.get("max") or (now() * 1000))
-
-    def parse(self):
-        self.body.update({
-            "gte": int(self.start),
-            "lte": int(self.end),
-            "format": "epoch_millis"
-        })
-
-
-class String(ElasticSearchAggs):
-    key = "terms"
-
-    def parse(self):
-        order = self.column.get("order", "desc")
-        assert order in ("desc", "asc")
-        self.body.update({
-            "size": int(self.column.get("size", 5)),
-            "order": {self.column.get("order key", 1): order},
-
-        })
-
-
-class Date(ElasticSearchAggs):
-    key = "date_histogram"
-    interval = 1
-    min_doc_count = 1
-    time_zone = "Asia/Shanghai"
-    min = property(lambda self: self.column.get("min") or 1464754939523)
-    max = property(lambda self: self.column.get("max") or (now() * 1000))
-    __interval_dome = "5m"  # 5分钟
-    units = "daily"
-    units_mappings = {
-        "second": "s",
-        "minute": "m",
-        "hourly": "h",
-        "daily": "d",
-        "weekly": "w",
-        "monthly": "M",
-        "yearly": "y",
-        None: "d"  # 默认天
-    }
-    get_interval = classmethod(lambda cls, interval, units:
-                               "{}{}".format(interval, cls.units_mappings.get(units)))
-
-    def parse(self):
-        self.body.update({
-            "time_zone": self.time_zone,
-            "interval": self.get_interval(
-                self.column.get("interval", self.interval), self.column.get("units", self.units)),
-            "min_doc_count": self.min_doc_count,
-            "extended_bounds": {"min": int(self.min), "max": int(self.max)},
-        })
-
-
-# class Ranges(ElasticSearchAggs):
-#     key = "range"
-#
-#     def parse(self):
-#         if "ranges" in self.column:
-#             self.body.update({
-#                 "ranges": [{"from": int(start), "to": int(end)} for start, end in self.column["ranges"]],
-#                 "keyed": True
-#             })
-#         else:
-#             self.clear()
-
-class Number(dict):
-    key = "range"
-
-    def __init__(self, ):
-        super(Number, self).__init__()
-        self[self.key] = {}
-
-    def parse(self):
-        self.body.update({
-            "ranges": [{"from": int(start), "to": int(end)} for start, end in self.column["ranges"]],
-            "keyed": True
-        })
-
-
-types_mappings = {
-    "string": String,
-    "date": Date,
-    # "number": Number,
+range_mappings = {
+    ">=": "gte",
+    ">": "gt",
+    "<=": "lte",
+    "<": "lt",
+    "==": "ae",
 }
 
 
-class ElasticSearchRTC(RTC):
+class FilterCheckParams(CheckParams):
+    type = "filters"
+
+    @staticmethod
+    def number(values):
+        oper = {range_mappings[values["oper"]]: int(values["value"])}
+        return mappings["number"]["filter"](values["field"], date=False, **oper)
+
+    @staticmethod
+    def string(values):
+        return mappings["string"]["filter"][values["oper"]](values["field"], values["value"])
+
+    @staticmethod
+    def date(values):
+        default_min = now() - 86400 * 60  # 俩月前
+        oper = {"gte": int(values.get("min", default_min * 1000)), "lte": int(values.get("max", now() * 1000))}
+        return mappings["date"]["filter"](values["field"], date=True, **oper)
+
+
+class RowCheckParams(CheckParams):
+    type = "rows"
+
+    @staticmethod
+    def number(values):
+        return (mappings["number"]["aggregation"].get(values["agg"]) or Sum)(values["field"])
+
+
+class ColumnCheckParams(CheckParams):
+    type = "columns"
+    orders = {
+        "desc": True,
+        "asc": False
+    }
+
+    @classmethod
+    def string(cls, values):
+        return mappings["string"]["aggregation"](
+            values["field"], size=values["size"], reverse=cls.orders.get(values["order"]))
+
+    @staticmethod
+    def number(values):
+        return mappings["number"]["aggregation"][values["oper"]](values["field"], values["interval"])
+
+    @staticmethod
+    def date(values):
+        return mappings["date"]["aggregation"](values["field"], values["interval"].strip() + values["unit"])
+
+
+checkers = (FilterCheckParams, RowCheckParams, ColumnCheckParams)
+
+mappings = {
+    "string": {
+        "filter": {"包含": Term, "分词": Match},
+        "aggregation": Terms
+    },
+    "date": {
+        "filter": Range,
+        "aggregation": DateHistogram
+    },
+    "number": {
+        "filter": Range,
+        "aggregation": {
+            # 指标聚合
+            "最大": Max, "最小": Min, "平均": Avg, "求和": Sum,
+            "唯一值数量": Cardinality, "extended_stats": ExtendedStats,
+            # 范围聚合
+            "histogram": Histogram
+        }},
+}
+
+
+class ElasticSearchRTC(RTC, ElasticSearchParamsParse):
     """ ES request body 映射  每个实例解决一次解析 """
     type = 4
+    request_body = None
 
-    default_request_body = {
-        # "size": 0,
-        "query": {
-            "filtered": {
-                "query": {
-                    "query_string": {
-                        # "query": "*",
-                        "analyze_wildcard": True
-                    }
-                },
-                "filter": {
-                    "bool": {
-                        "must": [
-                            # {
-                            #     "range": {
-                            #         "task_date": {
-                            #             "gte": 1464754939523,
-                            #             "lte": 1496290939523,
-                            #             "format": "epoch_millis"
-                            #         }
-                            #     }
-                            # }
-                        ],
-                        "must_not": [],
-                    }
-                }
-            }
-        },
-        "aggs": {
-            #     "1": {
-            #         "date_histogram": {
-            #             "field": "task_date",
-            #             "interval": "1M", # 按月聚合
-            #             "time_zone": "Asia/Shanghai",
-            #             "min_doc_count": 1,
-            #             "extended_bounds": {
-            #                 "min": 1464754939521,
-            #                 "max": 1496290939521
-            #             }
-            #         },
-            #         "aggs": {
-            #             "2": {
-            #                 "sum": {
-            #                     "field": "gmv"
-            #                 }
-            #             },
-            #             "3": {
-            #                 "sum": {
-            #                     "field": "month_sale"
-            #                 }
-            #             }
-            #         }
-            #     }
-        }
-    }
-    _types_json = {"date_histogram": {"field": "task_date",
-                                      "interval": "1M",
-                                      "time_zone": "Asia/Shanghai",
-                                      "min_doc_count": 1,
-                                      "extended_bounds": {"min": 1464834955997, "max": 1496370955997}},
-                   "terms": {
-                       "field": "fg_category2_name.raw",
-                       "size": 5,
-                       "order": {"1": "desc"}
-                   }}
-
-    ai = 0  # es 请求体中使用到的数字Key
+    get_heads = staticmethod(lambda items: [item["field"] for item in items])
 
     def __init__(self, *args, **kwargs):
         """
@@ -220,105 +120,174 @@ class ElasticSearchRTC(RTC):
         """
         super(ElasticSearchRTC, self).__init__(*args, **kwargs)
         if not (self.columns and self.rows):
-            raise ChartsError("请检查rows或columns是否为空")
-        self.columns_copy = deepcopy(self.columns)
-        self.request_body = deepcopy(self.default_request_body)  # 深拷贝 消除引用
-        self.aggs_value = {}
-        self.filed_rela = {}
-        self.rows_increment = []
-        self.request_body.update(ElasticSearchLimit(self.limit))
-        self.request_body['query']['filtered']['query']['query_string']['query'] = self.query  # 设置Query
-        for filter in self.filters:
-            self.request_body["query"]['filtered']["filter"]["bool"]["must"].append(DateRange(filter))
-        # self.request_body["query"]['filtered']["filter"]["bool"]["must_not"].append(DataRange(self.must_not))
-        for self.ai, row in enumerate(self.rows, 1):
-            key = str(self.ai)
-            kv = self.rows_increment.append(key) or self.aggs_value.setdefault(key, {})
-            kv['sum'] = kv_sum = {}
-            self.filed_rela[key] = kv_sum.setdefault("field", row["field"])
-
-        self.request_body['aggs'] = self.get_aggs()  # 设置查询参数
+            raise APIError("请检查rows或columns是否为空")
+        self.request_body = Search().query(self.query)
+        self.ai = 1
+        self.rows_keys = []
+        for index, (checker_type, checker) in enumerate(
+                dict((checker.type, checker) for checker in checkers).items()):
+            items = getattr(self, checker_type)
+            for item in items:
+                parse_function = getattr(checker, item["type"])
+                assert parse_function, "{field}[{type}]不支持的类型".format(**item)
+                if checker_type == FilterCheckParams.type:  # 过滤类型的api不同
+                    self.request_body.filter_bool(must=parse_function(item))
+                else:
+                    self.request_body.aggs(self.ai, parse_function(item))
+                    if checker_type == RowCheckParams.type:
+                        self.rows_keys.append(str(self.ai))
+                        self.ai += 1
+        self.column_heads = self.get_heads(self.columns)
+        self.row_heads = self.get_heads(self.rows)
+        self.heads = self.column_heads + self.row_heads
 
     def get_data(self):
+        logger.pprint(self.request_body)
         self.response = loads(_req_url(self.address, self.request_body))
-        logger._print(dumps(self.response))
-
+        logger.pprint(self.response)
         if not self.response or 'aggregations' not in self.response:
-            raise ChartsError("请求失败")
-        data = self.get_table(self.response['aggregations'])
-        if len(self.columns_copy) > 1:
-            data = self.trans(data)
+            raise APIError("请求失败")
+        data = get_table(self.response.get('aggregations', {}), self.rows_keys)
+        if len(self.columns) > 1:
+            data = trans(data, self.column_heads, self.row_heads)
         else:
-            heads = [item["field"] for item in self.columns_copy] + [item["field"] for item in self.rows]
-            data.insert(0, heads)
+            data.insert(0, self.heads)
         return data
 
-    def trans(self, data):
-        heads = []
-        for column in self.columns_copy:
-            heads.append(column["field"])
-        for row in self.rows:
-            heads.append(row["field"])
-        code = r'''
-def trans(data):
-    result = data.groupby(['{}'])
-    return result.sum().unstack()
-        '''.format("','".join([item["field"] for item in self.columns_copy]))
-        data = self.data_trans(data, heads, code, True)
-        return data
+        #     @classmethod
+        #     def get_table(cls, data, rows_increment):
+        #         if not data:
+        #             return []
+        #         for item in data:
+        #             try:
+        #                 if "buckets" in data[item]:
+        #                     tmp_data = []
+        #                     for it in data[item]['buckets']:
+        #                         val = it['key']
+        #                         tmp_table = cls.get_table(it, rows_increment)
+        #                         for i in tmp_table:
+        #                             i.insert(0, val)
+        #                         tmp_data.extend(tmp_table)
+        #                     return tmp_data
+        #             except Exception, e:
+        #                 continue
+        #         result = []
+        #         for item in rows_increment:
+        #             if "value" in data[item]:
+        #                 result.append(data[item]['value'])
+        #         return [result]
+        #
+        #     def trans(self, data):
+        #
+        #         code = r'''
+        # def trans(data):
+        #     result = data.groupby(['{}'])
+        #     return result.sum().unstack()
+        #         '''.format("','".join([item["field"] for item in self.columns]))
+        #         return self.data_trans(data, self.column_heads, code, True)
+        #
+        #     @staticmethod
+        #     def data_trans(data, columns_names, code, istable=True):
+        #         if columns_names:
+        #             data = DataFrame([x for x in data], columns=columns_names)
+        #         else:
+        #             data = DataFrame([x for x in data])
+        #         if code:
+        #             exec code
+        #             result = trans(data).fillna('')
+        #         else:
+        #             result = data.fillna('')
+        #         if istable:
+        #             result = to_table(result)
+        #         return result
 
-    def data_trans(self, data, columns_fields, code, istable=True):
-        if columns_fields:
-            data = DataFrame([x for x in data], columns=columns_fields)
-        else:
-            data = DataFrame([x for x in data])
-        if 1 == 1:
-            if code:
-                exec code
-                result = trans(data).fillna('')
-            else:
-                result = data.fillna('')
-            if istable:
-                result = to_table(result)
-            return result
+        # def format_result(self):
+        #     aggregations = (self.response.get('aggregations', {}).values() or [{}])[0].get("buckets", [])
+        #     result = []
+        #
+        #     for aggregation in aggregations:
+        #         keys, value, buckets = [aggregation["key"]], 0, []
+        #         for bucket in aggregation.itervalues():
+        #             if isinstance(bucket, DictType):
+        #                 if "value" in bucket:
+        #                     value = bucket["value"]
+        #                 if "buckets" in bucket:
+        #                     buckets = bucket.get("buckets", [])
+        #
+        #         while buckets:
+        #             for bucket in buckets:
+        #                 values = []
+        #                 keys.append(bucket["key"])
+        #                 buckets = filter(self.filter_bucket, bucket.itervalues())
+        #                 if not bucket:
+        #                     keys
+        #                 # for item in bucket.itervalues():
+        #                 #     if isinstance(item, DictType):
+        #                 #         if "value" in item:
+        #                 #             value = item["value"]
+        #                 #         else:
+        #                 #             buckets = item.get("buckets", [])
+        #                 print bucket
+        #             break
+        #         result.append(keys + [value])
+        #         # item = filter(lambda item: isinstance(item, DictType) and "buckets" in item, bucket.values())
+        #         # if not item:
+        #         #     pass
+        #         # row[bucket["key"]] = filter(ite)
+        #         # bucket["key"]
+        #         # if not item:
+        #
+        #         # print "[TEST]: ",
+        #         # keys = []
+        #         # while buckets:
+        #         #     for bucket in buckets:
+        #         #         key = key.setdefault(bucket["key"], {})
+        #         #         for k, sub_bucket in bucket.iteritems():
+        #         #             if isinstance(sub_bucket, DictType):
+        #         #                 if "value" in sub_bucket:
+        #         #                     key["value"] = sub_bucket["value"]
+        #         #                 buckets = sub_bucket.get("buckets", [])
+        #
+        #         # for buckets in aggregations:  # 第一层循环 为了基本的维度
+        #         #     row = {}
+        #         #     keys = row.setdefault("keys", [])
+        #         #     keys.append(buckets["key"])
+        #         #     while buckets:
+        #         #
+        #         #         for key, bucket in buckets.iteritems():
+        #         #             if isinstance(bucket, DictType):
+        #         #                 if "value" in bucket:
+        #         #                     row["value"] = bucket["value"]
+        #
+        #         # for keys, sub_buckets in bucket.iteritems() if isinstance(bucket, DictType) else []:
+        #         #     if isinstance(sub_buckets, DictType):
+        #         #         if "value" in sub_buckets:
+        #         #             result.append([keys, bucket.get("key")])
+        #         #
+        #     print "\n\n\n\n\n"
+        #     # print keys
+        #     # print values
+        #     logger.pprint(result)
 
-    def get_table(self, data):
-        if not data:
-            return []
-        for item in data:
-            try:
-                if "buckets" in data[item]:
-                    tmp_data = []
-                    for it in data[item]['buckets']:
-                        val = it['key']
-                        tmp_table = self.get_table(it)
-                        for i in tmp_table:
-                            i.insert(0, val)
-                        tmp_data.extend(tmp_table)
-                    return tmp_data
-            except Exception, e:
-                continue
-        result = [data[item]['value'] for item in self.rows_increment if "value" in data[item]]
-        return [result]
+        # result_item = []
+        #
 
-    def get_aggs(self):
-        ai = self.ai = self.ai + 1  # 这里防止实例属性的引用
-        column = self.columns.pop(0)
-        type = column["type"]
-        if type not in types_mappings:
-            return {}  # # "该类型({})不支持，请联系管理员。".format(type)
-        tmp = types_mappings.get(type)(column)
+        #
+        # buckets = 1
 
-        self.filed_rela[self.ai] = column["field"]
 
-        if self.columns:
-            tmp['aggs'] = self.get_aggs()
-            if not tmp['aggs']:
-                return {}
-            tmp['aggs'] = dict(tmp['aggs'], **self.aggs_value)
-        else:
-            tmp['aggs'] = self.aggs_value
-        return {ai: tmp}
+# heads = []
+#         for column in self.columns:
+#             heads.append(column["field"])
+#         for row in self.rows:
+#             heads.append(row["field"])
+#         code = r'''
+# def trans(data):
+#     result = data.groupby(['{}'])
+#     return result.sum().unstack()
+#         '''.format("','".join([item["field"] for item in self.columns]))
+#         data = self.data_trans(data, heads, code, True)
+#         return data
 
 
 class Manager():

@@ -2,6 +2,7 @@
 from __base__ import System
 from abc import ABCMeta
 from mapping import Mapping
+from error import AssertionError
 
 
 class RealTimeCalculationBase(object):
@@ -39,6 +40,7 @@ class RealTimeCalculationMapping(RealTimeCalculationMappingBase):
         self.columns = columns or self.columns
         self.limit = limit or self.limit
         assert self.address and self.query  # 索引、类型和query必须存在
+        assert self.rows and self.columns, "Rows或Columns缺少参数"
 
 
 RTC = RealTimeCalculationMapping

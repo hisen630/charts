@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 from base.oper_b import OperBase
 from conf.default import TYPES_MAPPING
+from modules import mappings
 
 
 class OperManager:
@@ -8,17 +9,7 @@ class OperManager:
 
     @classmethod
     def get_data(cls, ids=()):
-        operations = OperBase.get_data_by_ids(ids)
-        result = {}
-        operations_result = result.setdefault("operations", {})
-        for item in operations:
-            operations_result.setdefault(item["ds_types"], {}).setdefault(
-                item["fields_types"], {}).setdefault(item["oper"], item["id"])
-        result["aggregate"] = {  # TODO 这里聚合函数的操作被写死了 之后开放
-            0: [{"name": "sum", "label": "求和"}, {"name": "max", "label": "求最大"}, {"name": "min", "label": "求最小"}],
-            4: [{"name": "sum", "label": "求和"}, {"name": "max", "label": "求最大"}, {"name": "min", "label": "求最小"}]
-        }
-        return result
+        return mappings
 
     @staticmethod
     def get_by_id(id):

@@ -17,8 +17,8 @@ class CreateChart(CustomView):
 
     def index(self):
         dbs = SourceManager.get_data()
-        filters = OperManager.get_data()
-        return render_custom("/createchart/createchart.tpl", dbs=dbs, filters=filters)
+        mappings = OperManager.get_data()
+        return render_custom("/createchart/createchart.tpl", dbs=dbs, mappings=mappings)
 
     def preview(self):  # TODO 必须post提交方式
         # http://127.0.0.1:16688/createchart/preview?field_id=1&cid=1&rid=1
@@ -46,8 +46,8 @@ class CreateChart(CustomView):
         }
         json = request.get_json(force=True)
         json["type"] = 4  # 强制类型为es类型
-        json["filters"] = []  # 默认添加时间限制
-        logger._print("request json:" + dumps(json))
+
+        logger.pprint("request json:" + dumps(json))
         try:
             result = {'status': True, "code": 0, 'msg': u'获取数据完成.', "data": self.manager.preview(**json)}
         except ChartsError, e:

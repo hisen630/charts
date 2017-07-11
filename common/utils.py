@@ -1,4 +1,5 @@
 # coding=utf-8
+from __base__.error import APIError
 import os
 import re
 import urllib2
@@ -7,9 +8,9 @@ from decimal import Decimal
 import json
 import glob
 import time
-
+from traceback import format_exc
 from pandas import DataFrame, Series
-import pandas as pd;
+import pandas as pd
 import numpy as np
 from collections import Iterable as IterType
 from logging import getLogger, DEBUG
@@ -495,20 +496,15 @@ def format_ifram_url(url, search):
                                                                            r'height="352" width="100%"')
 
 
-def _req_url(url, data, repeat=4):
-    req = ''
-    data = json.dumps(data)
-    for j in range(repeat):
-        # try:
-        logger.debug("Request {}.".format(url))
-        res = urllib2.Request(url, data)
-        req = urllib2.urlopen(res).read()
-        break
-        # except Exception, e:
-        #     pass
-    if req == '':
-        raise Exception(url + u"获取不到数据")
-    return req
+def _req_url(url, data=None, repeat=4):
+    data = json.dumps(data or {})
+    for _ in range(repeat):
+        try:
+            logger.debug("Request {}".format(url))
+            return urllib2.urlopen(urllib2.Request(url, data)).read()
+        except:
+            logger.error(format_exc())
+            raise APIError(u"获取不到数据")
 
 
 def _req_url_body(url, data, isput=False):

@@ -68,7 +68,7 @@ def convert(es_fields):
         result.setdefault(unit, []).append({
             "field": field,
             "type": type_mapping.get(type, type),
-            "last_type": type,
+            "last_type": last_type,
             "label": field
         })
     return result

@@ -10,14 +10,6 @@ from json import dumps, loads
 class ElasticSearchFields(Session):
     search_one_doc_api = "http://{}/{}/_search?size=1"
     fields_mapping_api = "http://{}/{}/_mapping/{}"
-    type_mapping = {
-        "long": "number",
-        "float": "number",
-        "date": "date",
-        "keyword": "string",
-        "text": "string",
-
-    }
 
     def __init__(self, host, index_or_template="_all", username=None, password=None):
         super(ElasticSearchFields, self).__init__()
@@ -50,17 +42,45 @@ class ElasticSearchFields(Session):
         if not self._fields:
             response = loads(self.get(self.fields_mapping_uri).content)
             self._fields = response.values()[0]["mappings"][self.type]["properties"]
-        return [[field, self.type_mapping.get(item["type"], item["type"])] for field, item in self._fields.iteritems()]
+        return self._fields
 
     @staticmethod
     def field_format(self, ):
         pass
 
 
+type_mapping = {
+    "long": "number",
+    "float": "number",
+    "date": "date",
+    "keyword": "string",
+    "text": "string",
+
+}
+
+
+def convert(es_fields):
+    result = {}
+    for field, item in imp.fields_mapping.iteritems():
+        last_type = item["type"]
+        type = type_mapping.get(last_type, "string")
+        unit = "index" if type == "number" else "dimension"
+        result.setdefault(unit, []).append({
+            "field": field,
+            "type": type_mapping.get(type, type),
+            "last_type": type,
+            "label": field
+        })
+    return result
+
+
 if __name__ == '__main__':
     basicConfig(level=INFO, format="[%(levelname)s - %(asctime)s]: %(message)s", datefmt='%Y-%m-%d %H:%M:%S')
     with ElasticSearchFields("hi-prod-33:9200", "taobao_item_info_monthly_test_2017-02-01_50025004", "test",
                              "test123") as imp:
-        print dumps(
-            [{"field": field, "type": type, "label": field} for
-             field, type in imp.fields_mapping], indent=4)
+        print dumps(convert(imp.fields_mapping), indent=4)
+
+        #
+        # print dumps(
+        #     [{"field": field, "type": type, "label": field} for
+        #      field, type in imp.fields_mapping], indent=4)

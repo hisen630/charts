@@ -417,6 +417,7 @@
                     dragZone[item].push(dragList.clone(true).text(temp.label).data("info", updateObject(temp, {"class": item})));
                 });
             }
+            hit_drag.id = hit_table.id;
             indexDimensionReset(dragZone.index || [], dragZone.dimension || []);
             filterReset();
             columnRowReset();

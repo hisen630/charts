@@ -2,24 +2,22 @@
 from types import DictType
 from abc import ABCMeta, abstractproperty
 
-
 # Base =======================================================================
-class ElasticSearchBase(object):
-    """ 基类 """
+class ElasticSearchAbstract(object):
+    """ 抽象类 """
     __metaclass__ = ABCMeta
 
 
-class ElasticSearch(ElasticSearchBase):
+class ElasticSearchBase(ElasticSearchAbstract):
     """ 实现类 """
 
 
-class ElasticSearchFilter(dict, ElasticSearch):
+class ElasticSearchFilter(dict, ElasticSearchBase):
     """ 过滤对象 """
     key = abstractproperty()
-    __slots__ = ("key")
 
 
-class ElasticSearchAggregation(dict, ElasticSearch):
+class ElasticSearchAggregation(dict, ElasticSearchBase):
     """ 普通字段聚合 """
 
 
@@ -27,12 +25,12 @@ class ElasticSearchBody(dict, ElasticSearchBase):
     """ body类 """
 
 
-# Base =======================================================================
+# filter =======================================================================
 
 class Term(ElasticSearchFilter):
     key = "term"
 
-    def __init__(self, name, value):
+    def __init__(self, name, value, **kwargs):
         super(Term, self).__init__()
         self[self.key] = {name: value}
 
@@ -61,7 +59,7 @@ class Range(ElasticSearchFilter):
             body.update({"type": "date", "format": format})
 
 
-# Base =======================================================================
+# aggs =======================================================================
 class AggregationFunction(ElasticSearchAggregation):
     """ 聚合函数对象 """
     functions = ("avg", "sum", "min", "max", "extended_stats", "cardinality", "percentiles", "percentile_ranks")
@@ -92,10 +90,7 @@ class Terms(ElasticSearchAggregation):
 
     def __init__(self, name, size=5, reverse=True):
         super(Terms, self).__init__()
-        self.setdefault(self.key, {"field": name}).update({
-            "size": int(size),
-            "order": {1: "desc"} # TODO
-        })
+        self.setdefault(self.key, {"field": name}).update({"size": int(size), "order": {1: "desc"}})
 
 
 class DateHistogram(ElasticSearchAggregation):
@@ -140,19 +135,15 @@ class Histogram(ElasticSearchAggregation):
         self.setdefault(self.key, {"field": name, "interval": int(interval)})
 
 
-# Base =======================================================================
+# request body =======================================================================
 class Search(ElasticSearchBody):
-    # body = QueryFiltered(query=Query(self.query), filter=Filter(Bool(must=filters)))
-    # def __init__(self, index, type):
-    #     super(Search, self).__init__()
-    #     self.index = index
-    #     self.type = type
     af_one = None
     afs = None
 
     def __init__(self):
         super(Search, self).__init__()
         self["size"] = 0
+        self.query("*")
 
     def query(self, query="*", analyze_wildcard=True):
         self.setdefault("query", {}).setdefault("filtered", {}).setdefault("query", {}).setdefault(
@@ -200,8 +191,8 @@ class Search(ElasticSearchBody):
 
 
 if __name__ == '__main__':
-    s = Search().query("*").filter_bool(must=Range("adsf", gt=14, date=True), must_not=Term("666", "123"))
-    print s.aggs(1, Sum("t1")).aggs(2, Avg("t2")).aggs(3, Max("t3")).aggs(4, Terms("2级分类")).aggs(5, Terms(
+    s = Search().query("测试:=1").filter_bool(must=Range("adsf", gt=14, date=True), must_not=Term("666", "123"))
+    print s.aggs("测试", Sum("t1")).aggs(2, Avg("t2")).aggs(3, Max("t3")).aggs(4, Terms("2级分类")).aggs(5, Terms(
         "3级分类")).aggs(
         6, Terms("4级分类")).aggs(7, Terms("5级分类"))
     from json import dumps

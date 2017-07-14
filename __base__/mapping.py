@@ -13,11 +13,11 @@ class Mapping(MappingBase):
     """ 映射层实现类 """
     type = abstractproperty()  # 类型
     TYPES_MAPPING = {
-        0: 'mysql',
-        1: 'mysql_caculate',  # mysql任务型
-        2: 'fakecube',
-        3: 'hive',
-        4: 'elasticsearch'
+        0: 'MysqlDB',
+        1: 'MysqlCaculate',  # mysql任务型
+        2: 'FakeCube',
+        3: 'Hive',
+        4: 'ElasticSearch'
     }
 
 

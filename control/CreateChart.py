@@ -3,6 +3,7 @@ from __future__ import unicode_literals
 from __base__ import ChartsError
 from json import dumps
 from route import CustomView
+from modules import mappings
 from common.logger import logger
 from flask import request, jsonify
 from common.base import render_custom
@@ -16,9 +17,7 @@ class CreateChart(CustomView):
         self.manager = CreateChartManager()
 
     def index(self):
-        dbs = SourceManager.get_data()
-        mappings = OperManager.get_data()
-        return render_custom("/createchart/createchart.tpl", dbs=dbs, mappings=mappings)
+        return render_custom("/createchart/createchart.tpl", dbs=SourceManager.get_data(), mappings=mappings)
 
     def preview(self):  # TODO 必须post提交方式
         # http://127.0.0.1:16688/createchart/preview?field_id=1&cid=1&rid=1

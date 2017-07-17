@@ -2,6 +2,7 @@
 {% block header %}
     {{ super() }}
     <link rel="stylesheet" href="/static/plugin/highchart_edit/highcharts-editor.min.css">
+    <link rel="stylesheet" href="/static/plugin/bootstrap-table/bootstrap-table.min.css">
 {% endblock %}
 {% block content %}
     <style type="text/css">
@@ -94,6 +95,9 @@
                 </div>
 
                 <div class="col-sm-6">
+                    <div class="col-sm-6 checkbox" style="margin-top: 5px">
+                        <label><input id="form-btn" type="checkbox" name="form">表格</label>
+                    </div>
                     <div class="col-sm-6 pull-right">
                         <button id="setting" class="btn btn-sm btn-success btn-block">编辑图表</button>
                     </div>
@@ -101,9 +105,17 @@
                 <div class="col-sm-6">
                     <button id="preview" class="btn btn-sm btn-block">预览</button>
                 </div>
-                <div class="row">
-                    <div id="chart-show" style="min-height: 400px;"></div>
-
+                <div id="show-content" class="row" style="padding-top:20px;">
+                    <div class="row">
+                        <div id="chart-show" style="min-height:400px;"></div>
+                    </div>
+                    <div class="table-responsive hidden">
+                        <table id="table-show" class="table table-hover table-striped"
+                               data-search="true"
+                               data-show-export="true"
+                               data-show-toggle="true"
+                        ></table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -335,6 +347,11 @@
     }
 
     </script>
+    <script src="/static/plugin/bootstrap-table/bootstrap-table.min.js"></script>
+    <script src="/static/plugin/bootstrap-table/bootstrap-table-export.min.js"></script>
+    <script src="/static/plugin/bootstrap-table/bootstrap-table-locale-all.min.js"></script>
+    <script src="/static/plugin/bootstrap-table/tableExport.min.js"></script>
+    <script src="/static/plugin/bootstrap-table/libs/FileSaver/FileSaver.min.js"></script>
     <script src="https://code.highcharts.com/stock/highstock.js" type="text/javascript" charset="utf-8"></script>
     <script src="https://code.highcharts.com/adapters/standalone-framework.js" type="text/javascript"
             charset="utf-8"></script>
@@ -610,6 +627,35 @@
         var ajaxErrorFunc = function () {
             alert("服务器错误，请联系管理员。")
         };
+        function formatBsTable(twoDimensionalArray) {
+            var headers = [], body_data = [];
+            twoDimensionalArray[0].forEach(function (item) {
+                headers.push({
+                    field: item,
+                    title: item,
+                    sortable: true
+                })
+            });
+            twoDimensionalArray.slice(1, twoDimensionalArray.length).forEach(function (row) {
+                var cur_row = {};
+                headers.forEach(function (item, i) {
+                    cur_row[item["field"]] = row[i]
+                });
+                body_data.push(cur_row)
+            });
+            return [headers, body_data]
+        }
+        // 表图切换 =======================================================================================
+        var chart = $("#chart-show"), table = $("#table-show").parent();
+        $("#form-btn").change(function () {
+            if ($(this).is(':checked')) { // 选中时候显示二维表格
+                chart.addClass("hidden");
+                table.removeClass("hidden");
+            } else {
+                table.addClass("hidden");
+                chart.removeClass("hidden");
+            }
+        });
         $("#preview").click(function () {
             $('.popover').popover("hide"); // 隐藏所有弹窗
             var zoneMappings = {'filters': '.fliterzone .content', 'rows': '.rowszone', 'columns': '.columnszone'};
@@ -637,14 +683,25 @@
                         if (!response.status)
                             alert(response.msg);
                         log(JSON.stringify(response));
+                        var response_data = response.data;
                         var csv = [];
-                        for (var i = 0; i < response.data.length; i++) {
-                            csv.push(response.data[i].join(","));
+                        for (var i = 0; i < response_data.length; i++) {
+                            csv.push(response_data[i].join(","));
                         }
                         highchartsObject.find(".tab-body-padded:first .highed-imp-pastearea:eq(0)").val(csv.join("\n")); // 写入csv
                         highchartsObject.find(".highed-imp-button:eq(1)").click(); // 点击预览按钮
                         $("#setting").click();
-
+                        // table
+                        var data_table = formatBsTable(response_data);
+                        $("#table-show").bootstrapTable({
+                            height: 400,
+                            toggle: 'table',
+                            pagination: true,
+                            sidePagination: 'server',
+                            columns: data_table[0],
+                            data: data_table[1],
+                            search: true
+                        });
                     },
                     error: ajaxErrorFunc
                 });

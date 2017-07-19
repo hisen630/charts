@@ -1,7 +1,7 @@
 {% extends "layouts/header.tpl" %}
 {% block nav %}
-<!-- Navigation -->
-<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0">
+<!-- Navigation TODO 最小高度被设置为0 -->
+<nav class="navbar navbar-default navbar-static-top" role="navigation" style="margin-bottom: 0;min-height: 0">
   <div class="navbar-header">
     <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
       <span class="sr-only">Toggle navigation</span>
@@ -14,8 +14,8 @@
   <!-- /.navbar-header -->
 
   <ul class="nav navbar-top-links navbar-right">
-    <!-- /.dropdown -->
-    <li class="dropdown">
+    <!-- /.dropdown TODO hidden 隐藏了顶部菜单-->
+    <li class="dropdown hidden">
       <a class="dropdown-toggle" data-toggle="dropdown" href="#">
           <span>{{user_name}}</span>
         <i class="glyphicon glyphicon-user"></i>  <i class="glyphicon glyphicon-chevron-down"></i>

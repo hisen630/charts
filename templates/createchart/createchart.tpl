@@ -486,7 +486,7 @@
 
         // 过滤区域安装拖动对象放下事件 ===========================================================================================
         clearDragover($(".fliterzone:eq(0)")[0]).ondrop = function (ev) {
-            log(updateObject(hit_oper.clear(), ((mappings[hit_drag.source_type] || {})[hit_drag.type] || {}).filter));// 更新对象
+            log(updateObject(hit_oper.clear(), ((mappings[4] || {})[hit_drag.type] || {}).filter));// 更新对象
             $('.fliterzone .content').append(typesMapping[hit_drag.type]);
             return false;
         };
@@ -516,7 +516,7 @@
                 "number": {
                     "html": aggsBox.find(".index-number:eq(0)"),
                     "show": function (e) {
-                        var hit_aggregates = ((mappings[hit_drag.source_type] || {})[hit_drag.type] || {}).aggregates || [];
+                        var hit_aggregates = ((mappings[4] || {})[hit_drag.type] || {}).aggregates || [];
                         if (!this.selectInit) { // 初始化
                             var popover = $(this).next();
                             popover.find("input:eq(0)").select2({
